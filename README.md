@@ -5,6 +5,7 @@ ChatWars REST API server
 ## Install
 
 git clone git@github.com:alevinru/CWClient.git
+
 cd CWClient
 
 ## Setup
