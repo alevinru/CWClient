@@ -84,6 +84,33 @@ router.get('/stock/:userId', async ctx => {
 
 });
 
+router.post('/buy/:itemCode', async ctx => {
+
+  const { params: { itemCode }, query: { userId, quantity, price } } = ctx;
+
+  debug('POST /buy', userId, `${itemCode}_${quantity}_${price}`);
+
+  try {
+    ctx.body = await exchange.wantToBy(parseInt(userId, 0), { itemCode, quantity, price });
+  } catch (err) {
+
+    const { response } = ctx;
+
+    if (err === NOT_FOUND) {
+      response.status = 404;
+    } else if (err === TIMED_OUT) {
+      response.status = 504;
+    } else if (err === CW_RESPONSE_INVALID_TOKEN) {
+      response.status = 404;
+      ctx.body = CW_RESPONSE_INVALID_TOKEN;
+    } else {
+      throw new Error(err);
+    }
+
+  }
+
+});
+
 router.get('/info', async ctx => {
 
   debug('GET /info');

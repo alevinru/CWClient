@@ -1,9 +1,12 @@
 import { connect as amqpConnect } from 'amqp-connection-manager';
 import v4 from 'uuid/v4';
-import MessageCache, { ACTION_PROFILE, ACTION_GET_INFO, ACTION_REQUEST_STOCK } from './MessageCache';
+import MessageCache, { ACTION_PROFILE, ACTION_GET_INFO, ACTION_REQUEST_STOCK, ACTION_WTB } from './MessageCache';
 import database from '../db';
+import itemsByName from '../db/itemsByName';
 
-const { APP_NAME, ACCESS_TOKEN, API_URL, AMQP_PROTOCOL } = process.env;
+const {
+  APP_NAME, ACCESS_TOKEN, API_URL, AMQP_PROTOCOL,
+} = process.env;
 
 const debug = require('debug')('laa:cwc:exchange');
 
@@ -131,6 +134,30 @@ export default class CWExchange {
     return this.sendMessage({ action: ACTION_GET_INFO });
   }
 
+  async wantToBy(userId, params) {
+
+    const {
+      itemCode, quantity, price, exactPrice = true,
+    } = params;
+
+    const tokenData = await database.tokenByUserId(userId);
+
+    if (!tokenData) {
+      return Promise.reject(NOT_FOUND);
+    }
+
+    const message = {
+      action: ACTION_WTB,
+      token: tokenData.token,
+      payload: {
+        itemCode, quantity: parseInt(quantity, 0), price: parseInt(price, 0), exactPrice,
+      },
+    };
+
+    return this.sendMessage(message, `${userId}_${itemCode}_${quantity}_${price}`);
+
+  }
+
   async requestStock(userId) {
 
     const tokenData = await database.tokenByUserId(userId);
@@ -216,6 +243,11 @@ async function onCheckExchange(ch, cache) {
         break;
       }
 
+      case ACTION_WTB: {
+        processWantToBuyResponse(result, payload);
+        break;
+      }
+
       case ACTION_REQUEST_STOCK:
       case ACTION_PROFILE: {
 
@@ -296,6 +328,28 @@ async function onCheckExchange(ch, cache) {
     const cached = cache.pop(action, userId);
 
     debug('processProfileResponse', action, result);
+
+    if (result === CW_RESPONSE_OK) {
+      resolveCached(cached, payload);
+    } else {
+      rejectCached(cached, payload);
+    }
+
+  }
+
+  function processWantToBuyResponse(result, payload) {
+
+    const { itemName, quantity, userId } = payload;
+    const itemCode = itemsByName[itemName];
+
+    if (!itemCode) {
+      debug('processWantToBuyResponse:', 'unknown itemName:', itemName);
+      return;
+    }
+
+    const cached = cache.pop(ACTION_WTB, `${userId}_${itemCode}_${quantity}`);
+
+    debug('processWantToBuyResponse', ACTION_WTB, result, itemName, quantity);
 
     if (result === CW_RESPONSE_OK) {
       resolveCached(cached, payload);
