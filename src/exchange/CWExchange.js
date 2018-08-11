@@ -154,7 +154,9 @@ export default class CWExchange {
       },
     };
 
-    return this.sendMessage(message, `${userId}_${itemCode}_${quantity}_${price}`);
+    const dealKey = `${userId}_${itemCode}_${quantity}`;
+
+    return this.sendMessage(message, dealKey);
 
   }
 
