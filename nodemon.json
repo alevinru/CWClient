@@ -1,0 +1,7 @@
+{
+  "env": {
+    "DEBUG": "laa:*",
+    "PORT": "8888",
+    "API_URL": "api.chtwrs.com:5673"
+  }
+}
