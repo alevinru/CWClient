@@ -19,10 +19,10 @@ router.post('/auth/:userId', ctx => {
 
 });
 
-router.post('/token/:userId', ctx => {
+router.post('/token/:userId/:authCode', ctx => {
 
-  const { params, query: { authCode } } = ctx;
-  const { userId } = params;
+  const { params } = ctx;
+  const { userId, authCode } = params;
 
   debug('token', userId, authCode);
 

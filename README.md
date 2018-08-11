@@ -30,6 +30,6 @@ npm run start
 
 POST /auth/:userId
 
-POST /token/:userId?authCode
+POST /token/:userId/:authCode
 
-GET /:userId/profile
+GET /profile/:userId
