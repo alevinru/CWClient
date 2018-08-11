@@ -1,6 +1,6 @@
 import { connect as amqpConnect } from 'amqp-connection-manager';
 import v4 from 'uuid/v4';
-import MessageCache, { ACTION_PROFILE, ACTION_GET_INFO } from './MessageCache';
+import MessageCache, { ACTION_PROFILE, ACTION_GET_INFO, ACTION_REQUEST_STOCK } from './MessageCache';
 import database from '../db';
 
 const { APP_NAME, ACCESS_TOKEN, API_URL, AMQP_PROTOCOL } = process.env;
@@ -52,12 +52,14 @@ export default class CWExchange {
       json: true,
 
       setup: channel => {
+
         debug('Got a channel');
+
+        this.channel = channel;
+
         return channel.checkExchange(EX, '', { durable: true })
-          .then(() => onCheckExchange(channel, this.cache))
-          .then(() => {
-            this.channel = channel;
-          });
+          .then(() => onCheckExchange(channel, this.cache));
+
       },
 
     });
@@ -127,6 +129,23 @@ export default class CWExchange {
     return this.sendMessage({ action: ACTION_GET_INFO });
   }
 
+  async requestStock(userId) {
+
+    const tokenData = await database.tokenByUserId(userId);
+
+    if (!tokenData) {
+      return Promise.reject(NOT_FOUND);
+    }
+
+    const message = {
+      action: ACTION_REQUEST_STOCK,
+      token: tokenData.token,
+    };
+
+    return this.sendMessage(message, userId);
+
+  }
+
   async requestProfile(userId) {
 
     const tokenData = await database.tokenByUserId(userId);
@@ -156,12 +175,9 @@ async function onCheckExchange(ch, cache) {
 
   debug('CheckExchange success');
 
-  await ch.bindQueue(QUEUE_O, EX)
-    .then(() => {
-      debug('Bind success', QUEUE_O);
-      // sendAuth();
-      // sendGrantToken();
-    });
+  await ch.bindQueue(QUEUE_O, EX);
+
+  debug('Bind success', QUEUE_O);
 
   await ch.consume(QUEUE_I, onConsumeResolve)
     .then(onConsumeInit(QUEUE_I));
@@ -169,6 +185,9 @@ async function onCheckExchange(ch, cache) {
   // await ch.consume(QUEUE_DEALS, onConsumeLog)
   //   .then(onConsumeInit(QUEUE_DEALS));
   //
+  await ch.consume(QUEUE_AU, onConsumeLog)
+    .then(onConsumeInit(QUEUE_AU));
+
   // await ch.consume(QUEUE_SEX, onConsumeLog)
   //   .then(onConsumeInit(QUEUE_SEX));
   //
@@ -195,9 +214,10 @@ async function onCheckExchange(ch, cache) {
         break;
       }
 
+      case ACTION_REQUEST_STOCK:
       case ACTION_PROFILE: {
 
-        processProfileResponse(result, payload);
+        processProfileResponse(responseCode, result, payload);
         break;
 
       }
@@ -264,12 +284,12 @@ async function onCheckExchange(ch, cache) {
 
   }
 
-  function processProfileResponse(result, payload) {
+  function processProfileResponse(action, result, payload) {
 
     const { userId } = payload;
-    const cached = cache.pop(ACTION_PROFILE, userId);
+    const cached = cache.pop(action, userId);
 
-    debug('processProfileResponse', ACTION_PROFILE, result);
+    debug('processProfileResponse', action, result);
 
     if (result === CW_RESPONSE_OK) {
       resolveCached(cached, payload);

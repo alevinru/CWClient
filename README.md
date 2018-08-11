@@ -34,4 +34,6 @@ POST /token/:userId/:authCode
 
 GET /profile/:userId
 
+GET /stock/:userId
+
 GET /info

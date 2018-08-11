@@ -6,6 +6,7 @@ const debug = require('debug')('laa:cwc:MessageCache');
 
 export const ACTION_PROFILE = 'requestProfile';
 export const ACTION_GET_INFO = 'getInfo';
+export const ACTION_REQUEST_STOCK = 'requestStock';
 
 export default class MessageCache {
 
@@ -14,6 +15,7 @@ export default class MessageCache {
     this.types = {
       [ACTION_PROFILE]: {},
       [ACTION_GET_INFO]: {},
+      [ACTION_REQUEST_STOCK]: {},
     };
 
   }
