@@ -6,7 +6,4 @@ const exchange = new CWExchange();
 
 export default exchange;
 
-exchange.connect()
-  .catch(e => {
-    debug('Error connecting', e);
-  });
+exchange.connect();

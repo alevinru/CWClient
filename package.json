@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "amqp-connection-manager": "^2.1.0",
     "amqplib": "^0.5.2",
     "debug": "^3.1.0",
     "koa": "^2.5.2",

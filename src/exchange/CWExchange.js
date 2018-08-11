@@ -1,4 +1,4 @@
-import amqplib from 'amqplib';
+import { connect as amqpConnect } from 'amqp-connection-manager';
 import v4 from 'uuid/v4';
 import { ACTION_PROFILE, MessageCache } from './MessageCache';
 import database from '../db';
@@ -34,18 +34,28 @@ export default class CWExchange {
 
   connect() {
 
-    this.client = amqplib.connect(`amqps://${APP_NAME}:${ACCESS_TOKEN}@${API_URL}`);
+    const manager = amqpConnect([`amqps://${APP_NAME}:${ACCESS_TOKEN}@${API_URL}`]);
 
-    return this.client
-      .then(conn => conn.createChannel())
-      .then(ch => {
+    manager.on('connect', () => {
+      debug('Manager connected');
+    });
+
+    manager.on('disconnect', params => {
+      debug('Manager disconnected', params.err.stack);
+    });
+
+    manager.createChannel({
+      json: true,
+      setup: channel => {
+        // `channel` here is a regular amqplib `ConfirmChannel`.
         debug('Got a channel');
-        return ch.checkExchange(EX, '', { durable: false })
-          .then(() => onCheckExchange(ch, this.cache));
-      })
-      .then(channel => {
-        this.channel = channel;
-      });
+        return channel.checkExchange(EX, '', { durable: true })
+          .then(() => onCheckExchange(channel, this.cache))
+          .then(() => {
+            this.channel = channel;
+          });
+      },
+    });
 
   }
 
