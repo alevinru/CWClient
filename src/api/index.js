@@ -1,5 +1,6 @@
 import Router from 'koa-router';
 import exchange from '../exchange';
+import { NOT_FOUND, TIMED_OUT, CW_RESPONSE_INVALID_TOKEN } from '../exchange/CWExchange';
 
 const debug = require('debug')('laa:cwc:api');
 
@@ -35,6 +36,23 @@ router.get('/profile/:userId', async ctx => {
 
   debug('profile', userId);
 
-  ctx.body = await exchange.requestProfile(parseInt(userId, 0));
+  try {
+    ctx.body = await exchange.requestProfile(parseInt(userId, 0));
+  } catch (err) {
+
+    const { response } = ctx;
+
+    if (err === NOT_FOUND) {
+      response.status = 404;
+    } else if (err === TIMED_OUT) {
+      response.status = 504;
+    } else if (err === CW_RESPONSE_INVALID_TOKEN) {
+      response.status = 404;
+      ctx.body = CW_RESPONSE_INVALID_TOKEN;
+    } else {
+      throw new Error(err);
+    }
+
+  }
 
 });

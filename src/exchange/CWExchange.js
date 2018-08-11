@@ -17,9 +17,11 @@ const SEX_QUEUE = queueName('sex_digest');
 const OFFERS_QUEUE = queueName('offers');
 
 const CW_RESPONSE_OK = 'Ok';
-const CW_RESPONSE_INVALID_TOKEN = 'InvalidToken';
+export const CW_RESPONSE_INVALID_TOKEN = 'InvalidToken';
+const CW_TIMEOUT = 1000;
 
-const NOT_FOUND = 'Not found';
+export const NOT_FOUND = 'Not found';
+export const TIMED_OUT = 'Time out request to CW';
 
 export default class CWExchange {
 
@@ -80,26 +82,40 @@ export default class CWExchange {
   async requestProfile(userId) {
 
     const tokenData = await database.tokenByUserId(userId);
+    const { cache } = this;
 
-    // if (!tokenData) {
-    //   return Promise.reject(NOT_FOUND);
-    // }
+    if (!tokenData) {
+      return Promise.reject(NOT_FOUND);
+    }
 
-    const msg = {
+    const message = {
       action: ACTION_PROFILE,
       token: tokenData.token,
     };
 
     return new Promise((resolve, reject) => {
 
-      const messageId = this.cache.push(ACTION_PROFILE, userId, { resolve, reject });
+      const timeOut = setTimeout(onTimeout, CW_TIMEOUT);
+      const options = {
+        ...message,
+        resolve,
+        reject,
+        timeOut,
+      };
+      const messageId = cache.push(ACTION_PROFILE, userId, options);
 
-      debug('sendGrantToken', messageId);
+      debug('requestProfile', messageId);
 
       try {
-        this.publish(msg, messageId);
+        this.publish(message, messageId);
       } catch (err) {
         reject(err);
+      }
+
+      function onTimeout() {
+        debug('requestProfile onTimeout', messageId);
+        cache.popById(ACTION_PROFILE, messageId);
+        reject(TIMED_OUT);
       }
 
     });
@@ -155,6 +171,13 @@ async function onCheckExchange(ch, cache) {
 
     debug('Consumed', action, result, payload);
 
+    if (result === CW_RESPONSE_INVALID_TOKEN) {
+      const { token } = payload;
+      rejectCached(cache.popByPredicate(action, { token }), CW_RESPONSE_INVALID_TOKEN);
+      ch.ack(msg);
+      return;
+    }
+
     switch (action) {
 
       case ACTION_PROFILE: {
@@ -177,24 +200,34 @@ async function onCheckExchange(ch, cache) {
 
   }
 
-  function processProfileResponse(result, payload) {
+  function resolveCached(messages, payload) {
+    debug('resolveCached:', messages.length);
+    messages.forEach(({ resolve, timeout }) => {
+      clearTimeout(timeout);
+      resolve(payload);
+    });
+  }
 
-    if (result === CW_RESPONSE_INVALID_TOKEN) {
-      return;
-    }
+  function rejectCached(messages, payload) {
+    debug('rejectCached:', messages.length);
+    messages.forEach(({ reject, timeout }) => {
+      clearTimeout(timeout);
+      reject(payload);
+    });
+  }
+
+  function processProfileResponse(result, payload) {
 
     const { userId } = payload;
     const cached = cache.pop(ACTION_PROFILE, userId);
 
-    cached.forEach(({ resolve, reject }) => {
-      if (result === CW_RESPONSE_OK) {
-        resolve(payload);
-      } else {
-        reject(payload);
-      }
-    });
+    debug('onConsumeResolve', ACTION_PROFILE, result);
 
-    debug('onConsumeResolve', ACTION_PROFILE, cached.length, 'messages');
+    if (result === CW_RESPONSE_OK) {
+      resolveCached(cached, payload);
+    } else {
+      rejectCached(cached, payload);
+    }
 
   }
 
