@@ -3,7 +3,7 @@ import v4 from 'uuid/v4';
 import { ACTION_PROFILE, MessageCache } from './MessageCache';
 import database from '../db';
 
-const { APP_NAME, ACCESS_TOKEN, API_URL } = process.env;
+const { APP_NAME, ACCESS_TOKEN, API_URL, AMQP_PROTOCOL } = process.env;
 
 const debug = require('debug')('laa:cwc:exchange');
 
@@ -11,15 +11,14 @@ const EX = queueName('ex');
 const QUEUE_I = queueName('i');
 const QUEUE_O = queueName('o');
 
-const DEALS_QUEUE = queueName('deals');
-const AU_QUEUE = queueName('au_digest');
-const SEX_QUEUE = queueName('sex_digest');
-const OFFERS_QUEUE = queueName('offers');
+const QUEUE_DEALS = queueName('deals');
+const QUEUE_OFFERS = queueName('offers');
+const QUEUE_SEX = queueName('sex_digest');
+const QUEUE_AU = queueName('au_digest');
 
+const TIMEOUT = 1000;
 const CW_RESPONSE_OK = 'Ok';
 export const CW_RESPONSE_INVALID_TOKEN = 'InvalidToken';
-const CW_TIMEOUT = 1000;
-
 export const NOT_FOUND = 'Not found';
 export const TIMED_OUT = 'Time out request to CW';
 
@@ -27,16 +26,15 @@ export default class CWExchange {
 
   constructor() {
 
-    // const { name, methods = {} } = config;
-
     debug('Init', API_URL, APP_NAME);
+
     this.cache = new MessageCache();
 
   }
 
   connect() {
 
-    const manager = amqpConnect([`amqps://${APP_NAME}:${ACCESS_TOKEN}@${API_URL}`]);
+    const manager = amqpConnect([`${AMQP_PROTOCOL}://${APP_NAME}:${ACCESS_TOKEN}@${API_URL}`]);
 
     manager.on('connect', () => {
       debug('Manager connected');
@@ -95,7 +93,7 @@ export default class CWExchange {
 
     return new Promise((resolve, reject) => {
 
-      const timeOut = setTimeout(onTimeout, CW_TIMEOUT);
+      const timeOut = setTimeout(onTimeout, TIMEOUT);
       const options = {
         ...message,
         resolve,
@@ -149,16 +147,16 @@ async function onCheckExchange(ch, cache) {
   await ch.consume(QUEUE_I, onConsumeResolve)
     .then(onConsumeInit(QUEUE_I));
 
-  // await ch.consume(DEALS_QUEUE, onConsumeLog)
+  // await ch.consume(QUEUE_DEALS, onConsumeLog)
   //   .then(onConsumeInit(DEALS_QUEUE));
   //
-  // await ch.consume(AU_QUEUE, onConsumeLog)
+  // await ch.consume(QUEUE_AU, onConsumeLog)
   //   .then(onConsumeInit(AU_QUEUE));
   //
-  // await ch.consume(SEX_QUEUE, onConsumeLog)
+  // await ch.consume(QUEUE_SEX, onConsumeLog)
   //   .then(onConsumeInit(SEX_QUEUE));
   //
-  // await ch.consume(OFFERS_QUEUE, onConsumeLog)
+  // await ch.consume(QUEUE_OFFERS, onConsumeLog)
   //   .then(onConsumeInit(OFFERS_QUEUE));
 
   return ch;

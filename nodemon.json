@@ -2,6 +2,7 @@
   "env": {
     "DEBUG": "laa:*",
     "PORT": "8888",
+    "AMQP_PROTOCOL": "amqps",
     "API_URL": "api.chtwrs.com:5673"
   }
 }
