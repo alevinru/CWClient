@@ -45,9 +45,10 @@ export default class CWExchange {
     });
 
     manager.createChannel({
+
       json: true,
+
       setup: channel => {
-        // `channel` here is a regular amqplib `ConfirmChannel`.
         debug('Got a channel');
         return channel.checkExchange(EX, '', { durable: true })
           .then(() => onCheckExchange(channel, this.cache))
@@ -55,9 +56,49 @@ export default class CWExchange {
             this.channel = channel;
           });
       },
+
     });
 
   }
+
+  publish(msg, messageId = v4()) {
+    const options = { messageId };
+    return this.channel.publish(EX, QUEUE_O, Buffer.from(JSON.stringify(msg)), options);
+  }
+
+  sendMessage(message, type, id) {
+
+    return new Promise((resolve, reject) => {
+
+      const onTimeout = () => {
+        debug('requestProfile onTimeout', messageId);
+        this.cache.popById(type, messageId);
+        reject(TIMED_OUT);
+      };
+
+      const timeOut = setTimeout(onTimeout, TIMEOUT);
+
+      const options = Object.assign({ resolve, reject, timeOut }, message);
+
+      const messageId = this.cache.push(type, id, options);
+
+      debug('requestProfile', messageId);
+
+      try {
+        this.publish(message, messageId);
+      } catch (err) {
+        reject(err);
+      }
+
+    });
+
+  }
+
+  /**
+
+   CW API protocol
+
+   */
 
   sendAuth(userId) {
     const msg = {
@@ -80,7 +121,6 @@ export default class CWExchange {
   async requestProfile(userId) {
 
     const tokenData = await database.tokenByUserId(userId);
-    const { cache } = this;
 
     if (!tokenData) {
       return Promise.reject(NOT_FOUND);
@@ -91,38 +131,8 @@ export default class CWExchange {
       token: tokenData.token,
     };
 
-    return new Promise((resolve, reject) => {
+    return this.sendMessage(message, ACTION_PROFILE, userId);
 
-      const timeOut = setTimeout(onTimeout, TIMEOUT);
-      const options = {
-        ...message,
-        resolve,
-        reject,
-        timeOut,
-      };
-      const messageId = cache.push(ACTION_PROFILE, userId, options);
-
-      debug('requestProfile', messageId);
-
-      try {
-        this.publish(message, messageId);
-      } catch (err) {
-        reject(err);
-      }
-
-      function onTimeout() {
-        debug('requestProfile onTimeout', messageId);
-        cache.popById(ACTION_PROFILE, messageId);
-        reject(TIMED_OUT);
-      }
-
-    });
-
-  }
-
-  publish(msg, messageId = v4()) {
-    const options = { messageId };
-    return this.channel.publish(EX, QUEUE_O, Buffer.from(JSON.stringify(msg)), options);
   }
 
 }
