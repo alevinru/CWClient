@@ -16,7 +16,7 @@ const QUEUE_OFFERS = queueName('offers');
 const QUEUE_SEX = queueName('sex_digest');
 const QUEUE_AU = queueName('au_digest');
 
-const TIMEOUT = 1000;
+const CW_TIMEOUT = parseInt(process.env.CW_TIMEOUT, 0) || 5000;
 
 const CW_RESPONSE_OK = 'Ok';
 const CW_RESPONSE_NOT_REGISTERED = 'NotRegistered';
@@ -84,7 +84,7 @@ export default class CWExchange {
         reject(TIMED_OUT);
       };
 
-      const timeOut = setTimeout(onTimeout, TIMEOUT);
+      const timeOut = setTimeout(onTimeout, CW_TIMEOUT);
       const options = Object.assign({ resolve, reject, timeOut }, message);
 
       this.cache.push(action, domainKey, options);
@@ -167,16 +167,13 @@ async function onCheckExchange(ch, cache) {
     .then(onConsumeInit(QUEUE_I));
 
   // await ch.consume(QUEUE_DEALS, onConsumeLog)
-  //   .then(onConsumeInit(DEALS_QUEUE));
-  //
-  // await ch.consume(QUEUE_AU, onConsumeLog)
-  //   .then(onConsumeInit(AU_QUEUE));
+  //   .then(onConsumeInit(QUEUE_DEALS));
   //
   // await ch.consume(QUEUE_SEX, onConsumeLog)
-  //   .then(onConsumeInit(SEX_QUEUE));
+  //   .then(onConsumeInit(QUEUE_SEX));
   //
   // await ch.consume(QUEUE_OFFERS, onConsumeLog)
-  //   .then(onConsumeInit(OFFERS_QUEUE));
+  //   .then(onConsumeInit(QUEUE_OFFERS));
 
   return ch;
 
