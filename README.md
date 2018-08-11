@@ -37,3 +37,5 @@ GET /profile/:userId
 GET /stock/:userId
 
 GET /info
+
+POST /buy/:itemCode?userId=&quantity=&price=
