@@ -1,4 +1,3 @@
-import v4 from 'uuid/v4';
 import matches from 'lodash/matches';
 import map from 'lodash/map';
 import each from 'lodash/each';
@@ -6,13 +5,15 @@ import each from 'lodash/each';
 const debug = require('debug')('laa:cwc:MessageCache');
 
 export const ACTION_PROFILE = 'requestProfile';
+export const ACTION_GET_INFO = 'getInfo';
 
-export class MessageCache {
+export default class MessageCache {
 
   constructor() {
 
     this.types = {
       [ACTION_PROFILE]: {},
+      [ACTION_GET_INFO]: {},
     };
 
   }
@@ -24,22 +25,22 @@ export class MessageCache {
 
   }
 
-  push(type, key, message = {}) {
+  push(type, key = type, message) {
 
     const stringKey = key.toString();
     const typeMessages = this.types[type];
-    const id = v4();
+    const { messageId } = message;
 
     typeMessages[stringKey] = typeMessages[stringKey] || {};
-    typeMessages[stringKey][id] = message;
+    typeMessages[stringKey][messageId] = message;
 
     debug('push:', type, key);
 
-    return id;
+    return messageId;
 
   }
 
-  pop(type, key) {
+  pop(type, key = type) {
 
     const stringKey = key.toString();
     const typeMessages = this.types[type];

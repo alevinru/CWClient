@@ -34,10 +34,35 @@ router.get('/profile/:userId', async ctx => {
 
   const { userId } = ctx.params;
 
-  debug('profile', userId);
+  debug('GET /profile', userId);
 
   try {
     ctx.body = await exchange.requestProfile(parseInt(userId, 0));
+  } catch (err) {
+
+    const { response } = ctx;
+
+    if (err === NOT_FOUND) {
+      response.status = 404;
+    } else if (err === TIMED_OUT) {
+      response.status = 504;
+    } else if (err === CW_RESPONSE_INVALID_TOKEN) {
+      response.status = 404;
+      ctx.body = CW_RESPONSE_INVALID_TOKEN;
+    } else {
+      throw new Error(err);
+    }
+
+  }
+
+});
+
+router.get('/info', async ctx => {
+
+  debug('GET /info');
+
+  try {
+    ctx.body = await exchange.getInfo();
   } catch (err) {
 
     const { response } = ctx;

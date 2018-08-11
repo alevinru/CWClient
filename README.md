@@ -33,3 +33,5 @@ POST /auth/:userId
 POST /token/:userId/:authCode
 
 GET /profile/:userId
+
+GET /info

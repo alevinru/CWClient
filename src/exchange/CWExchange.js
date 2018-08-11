@@ -1,6 +1,6 @@
 import { connect as amqpConnect } from 'amqp-connection-manager';
 import v4 from 'uuid/v4';
-import { ACTION_PROFILE, MessageCache } from './MessageCache';
+import MessageCache, { ACTION_PROFILE, ACTION_GET_INFO } from './MessageCache';
 import database from '../db';
 
 const { APP_NAME, ACCESS_TOKEN, API_URL, AMQP_PROTOCOL } = process.env;
@@ -17,8 +17,11 @@ const QUEUE_SEX = queueName('sex_digest');
 const QUEUE_AU = queueName('au_digest');
 
 const TIMEOUT = 1000;
+
 const CW_RESPONSE_OK = 'Ok';
+const CW_RESPONSE_NOT_REGISTERED = 'NotRegistered';
 export const CW_RESPONSE_INVALID_TOKEN = 'InvalidToken';
+
 export const NOT_FOUND = 'Not found';
 export const TIMED_OUT = 'Time out request to CW';
 
@@ -66,23 +69,25 @@ export default class CWExchange {
     return this.channel.publish(EX, QUEUE_O, Buffer.from(JSON.stringify(msg)), options);
   }
 
-  sendMessage(message, type, id) {
+  sendMessage(message, domainKey) {
+
+    const { action } = message;
+    const messageId = v4();
+
+    debug('sendMessage', action, messageId);
 
     return new Promise((resolve, reject) => {
 
       const onTimeout = () => {
-        debug('requestProfile onTimeout', messageId);
-        this.cache.popById(type, messageId);
+        debug('sendMessage onTimeout', messageId);
+        this.cache.popById(action, messageId);
         reject(TIMED_OUT);
       };
 
       const timeOut = setTimeout(onTimeout, TIMEOUT);
-
       const options = Object.assign({ resolve, reject, timeOut }, message);
 
-      const messageId = this.cache.push(type, id, options);
-
-      debug('requestProfile', messageId);
+      this.cache.push(action, domainKey, options);
 
       try {
         this.publish(message, messageId);
@@ -118,6 +123,10 @@ export default class CWExchange {
     return this.publish(msg);
   }
 
+  getInfo() {
+    return this.sendMessage({ action: ACTION_GET_INFO });
+  }
+
   async requestProfile(userId) {
 
     const tokenData = await database.tokenByUserId(userId);
@@ -131,7 +140,7 @@ export default class CWExchange {
       token: tokenData.token,
     };
 
-    return this.sendMessage(message, ACTION_PROFILE, userId);
+    return this.sendMessage(message, userId);
 
   }
 
@@ -177,16 +186,17 @@ async function onCheckExchange(ch, cache) {
     // const { exchange, deliveryTag } = fields;
     const { action, result, payload } = JSON.parse(content.toString());
 
-    debug('Consumed', action, result, payload);
+    debug('onConsumeResolve', action, result, payload);
 
-    if (result === CW_RESPONSE_INVALID_TOKEN) {
-      const { token } = payload;
-      rejectCached(cache.popByPredicate(action, { token }), CW_RESPONSE_INVALID_TOKEN);
-      ch.ack(msg);
-      return;
-    }
+    const exceptions = checkExceptions();
+    const responseCode = exceptions || action;
 
-    switch (action) {
+    switch (responseCode) {
+
+      case ACTION_GET_INFO: {
+        processGetInfoResponse(result, payload);
+        break;
+      }
 
       case ACTION_PROFILE: {
 
@@ -196,7 +206,7 @@ async function onCheckExchange(ch, cache) {
       }
 
       default: {
-        debug('onConsumeResolve unknown action', action);
+        debug('onConsumeResolve default', action);
       }
 
     }
@@ -205,6 +215,25 @@ async function onCheckExchange(ch, cache) {
     // debug('Consumed properties', properties);
 
     ch.ack(msg);
+
+    function checkExceptions() {
+
+      if (result === CW_RESPONSE_INVALID_TOKEN) {
+
+        const { token } = payload;
+        rejectCached(cache.popByPredicate(action, { token }), CW_RESPONSE_INVALID_TOKEN);
+
+      } else if (result === CW_RESPONSE_NOT_REGISTERED) {
+        resolveCached(cache.popByPredicate(action, {}), { status: CW_RESPONSE_NOT_REGISTERED });
+      } else {
+
+        return false;
+
+      }
+
+      return 'default';
+
+    }
 
   }
 
@@ -224,12 +253,26 @@ async function onCheckExchange(ch, cache) {
     });
   }
 
+  function processGetInfoResponse(result, payload) {
+
+    const cached = cache.pop(ACTION_PROFILE);
+
+    debug('processGetInfoResponse', ACTION_PROFILE, result);
+
+    if (result === CW_RESPONSE_OK) {
+      resolveCached(cached, payload);
+    } else {
+      rejectCached(cached, payload);
+    }
+
+  }
+
   function processProfileResponse(result, payload) {
 
     const { userId } = payload;
     const cached = cache.pop(ACTION_PROFILE, userId);
 
-    debug('onConsumeResolve', ACTION_PROFILE, result);
+    debug('processProfileResponse', ACTION_PROFILE, result);
 
     if (result === CW_RESPONSE_OK) {
       resolveCached(cached, payload);
