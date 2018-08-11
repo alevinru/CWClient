@@ -202,16 +202,16 @@ async function onCheckExchange(ch, cache) {
 
   function resolveCached(messages, payload) {
     debug('resolveCached:', messages.length);
-    messages.forEach(({ resolve, timeout }) => {
-      clearTimeout(timeout);
+    messages.forEach(({ resolve, timeOut }) => {
+      clearTimeout(timeOut);
       resolve(payload);
     });
   }
 
   function rejectCached(messages, payload) {
     debug('rejectCached:', messages.length);
-    messages.forEach(({ reject, timeout }) => {
-      clearTimeout(timeout);
+    messages.forEach(({ reject, timeOut }) => {
+      clearTimeout(timeOut);
       reject(payload);
     });
   }
