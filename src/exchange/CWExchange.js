@@ -228,7 +228,6 @@ async function onCheckExchange(ch, cache) {
   function onConsumeResolve(msg) {
 
     const { content } = msg;
-    // const { exchange, deliveryTag } = fields;
     const { action, result, payload } = JSON.parse(content.toString());
 
     debug('onConsumeResolve', action, result, payload);
@@ -262,6 +261,7 @@ async function onCheckExchange(ch, cache) {
 
     }
 
+    // const { exchange, deliveryTag } = fields;
     // debug('Consumed fields', fields);
     // debug('Consumed properties', properties);
 
