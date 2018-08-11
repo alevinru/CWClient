@@ -13,7 +13,7 @@ cd CWClient
 ## Setup
 
 Since you've got managed to request and obtain valid CW API credentials you must have **username** and **password**.
-It is required to set them into the environment variables named responsively as **APP_NAME** and **ACCESS_TOKEN**.
+It is required to set them into the environment variables named respectively as **APP_NAME** and **ACCESS_TOKEN**.
 
 ```Shell
 export APP_NAME=username
