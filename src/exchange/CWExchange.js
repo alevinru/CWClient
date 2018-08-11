@@ -19,7 +19,9 @@ const QUEUE_AU = queueName('au_digest');
 const CW_TIMEOUT = parseInt(process.env.CW_TIMEOUT, 0) || 5000;
 
 const CW_RESPONSE_OK = 'Ok';
+const CW_RESPONSE_BATTLE_IS_NEAR = 'BattleIsNear';
 const CW_RESPONSE_NOT_REGISTERED = 'NotRegistered';
+const CW_RESPONSE_BAD_FORMAT = 'BadFormat';
 export const CW_RESPONSE_INVALID_TOKEN = 'InvalidToken';
 
 export const NOT_FOUND = 'Not found';
@@ -235,11 +237,15 @@ async function onCheckExchange(ch, cache) {
 
     function checkExceptions() {
 
-      if (result === CW_RESPONSE_INVALID_TOKEN) {
-
+      if (result === CW_RESPONSE_BATTLE_IS_NEAR) {
+        debug('checkExceptions', result);
+      } else if (result === CW_RESPONSE_BAD_FORMAT) {
+        // const { token } = payload;
+        // rejectCached(cache.popByPredicate(action, { token }), CW_RESPONSE_BAD_FORMAT);
+        debug('checkExceptions', result);
+      } else if (result === CW_RESPONSE_INVALID_TOKEN) {
         const { token } = payload;
         rejectCached(cache.popByPredicate(action, { token }), CW_RESPONSE_INVALID_TOKEN);
-
       } else if (result === CW_RESPONSE_NOT_REGISTERED) {
         resolveCached(cache.popByPredicate(action, {}), { status: CW_RESPONSE_NOT_REGISTERED });
       } else {
