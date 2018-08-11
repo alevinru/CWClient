@@ -1,4 +1,4 @@
-# cwClient
+# CWClient
 
 ChatWars REST API server
 
