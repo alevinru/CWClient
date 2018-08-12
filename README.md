@@ -30,6 +30,46 @@ export ACCESS_TOKEN=password
 npm run start
 ```
 
+Upon success you need to get a valid CW **usesId** and ask that user for an authorization doing:
+
+```
+http POST /api/auth/101010101
+```
+
+Then CW Telegram Bot sends an authorization request message to the user Telegram account
+
+```
+Code 11223344 to authorize aliovin_CWClientAppBot. This app will have the access to:
+ - read your profile information
+ - issue a wtb/wts/rm commands on your behalf
+ - read your stock info
+```
+
+Now you need to use this **code** to get USER_TOKEN:
+
+```
+http POST /api/token/101010101/11223344
+```
+
+If everything's fine you would get a response like that:
+
+```
+{
+    "id": "1a2346c48ee342367d0e6af3c155b744",
+    "token": "0c32d64ac6f348cfae7e441f317fd898",
+    "userId": 101010101
+}
+```
+
+Finally you are to set both the userId and the received **token** to environment variables:
+
+```shell
+export USER_TOKEN=0c32d64ac6f348cfae7e441f317fd898
+export USER_ID=101010101
+```
+
+Now stop and restart API server and you should be able to use all the rest of the API methods
+
 ## REST API
 
 ### POST /auth/:userId
@@ -45,7 +85,7 @@ npm run start
 ```json
 {
     "id": "1a2346c48ee342367d0e6af3c155b744",
-    "token": "0c32d64ac6f348cfae7e441f317fd898'",
+    "token": "0c32d64ac6f348cfae7e441f317fd898",
     "userId": userId
 }
 ``` 

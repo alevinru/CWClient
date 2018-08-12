@@ -1,8 +1,11 @@
+const { USER_ID, USER_TOKEN } = process.env;
+
 export default class Database {
 
   constructor() {
 
     this.tokens = {
+      [USER_ID]: { token: USER_TOKEN },
     };
 
   }
