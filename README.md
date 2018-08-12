@@ -33,7 +33,7 @@ const manager = cw.connect(); // optional params { apiUrl, accessToken, amqpProt
 
 // manager is an instance of [amqp-connection-manager](amqp-connection-manager)
 
-manager.on('connected', async () => {
+manager.on('connect', async () => {
 
   try {
   
