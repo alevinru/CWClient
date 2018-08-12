@@ -146,7 +146,7 @@ export default class CWExchange {
   sendAuth(userId) {
 
     const message = {
-      action: Msg.Msg.ACTION_AUTH_SEND,
+      action: Msg.ACTION_AUTH_SEND,
       payload: { userId },
     };
 
@@ -159,7 +159,7 @@ export default class CWExchange {
   sendGrantToken(userId, authCode) {
 
     const message = {
-      action: Msg.Msg.ACTION_GRANT_TOKEN,
+      action: Msg.ACTION_GRANT_TOKEN,
       payload: { userId, authCode },
     };
 
