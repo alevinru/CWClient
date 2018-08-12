@@ -1,12 +1,18 @@
 # CWClient
 
-ChatWars REST API server
+### ChatWars REST API server**
 
 > ⚠️ This API doesn't authorize client requests so isn't intended to be publicly accessible.
 The server may be hosted only privately to serve as a backend responding internally to another authorized api.
 
 At the moment the API has no persistence and serves for one user only.
 Next release to be configurable to support Redis as persistent storage.
+
+### NodeJS interface
+
+This project beign imported as anpm module provides promise-based ChatWars interface.
+
+A sample of the module usage in NodeJS is demonstrated in [alevinru/CWClientHelperAppBot](https://github.com/alevinru/CWClientHelperAppBot) Telegram bot project.
 
 ## Install
 
