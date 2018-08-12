@@ -105,6 +105,12 @@ function handleException(ctx, err) {
 
   switch (err) {
 
+    case CWErrors.CW_RESPONSE_BATTLE_IS_NEAR: {
+      response.status = 502;
+      ctx.body = err;
+      break;
+    }
+
     case CWErrors.CW_RESPONSE_WRONG_USER_ID:
     case CWErrors.NOT_FOUND:
     case CWErrors.CW_RESPONSE_NO_OFFERS: {

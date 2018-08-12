@@ -24,10 +24,10 @@ const QUEUE_AU = queueName('au_digest');
 const CW_TIMEOUT = parseInt(process.env.CW_TIMEOUT, 0) || 5000;
 
 const CW_RESPONSE_OK = 'Ok';
-const CW_RESPONSE_BATTLE_IS_NEAR = 'BattleIsNear';
 const CW_RESPONSE_NOT_REGISTERED = 'NotRegistered';
 const CW_RESPONSE_BAD_FORMAT = 'BadFormat';
 
+export const CW_RESPONSE_BATTLE_IS_NEAR = 'BattleIsNear';
 export const CW_RESPONSE_WRONG_USER_ID = 'NoSuchUser';
 export const CW_RESPONSE_NO_OFFERS = 'NoOffersFoundByPrice';
 export const CW_RESPONSE_INVALID_CODE = 'InvalidCode';
