@@ -1,6 +1,6 @@
 # CWClient
 
-**ChatWars REST API server**
+### ChatWars REST API HTTP server**
 
 > ⚠️ This API doesn't authorize client requests so isn't intended to be publicly accessible.
 The server may be hosted only privately to serve as a backend responding internally to another authorized api.
