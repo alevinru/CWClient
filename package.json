@@ -1,13 +1,13 @@
 {
-  "name": "cwclient",
+  "name": "cw-rest-api",
   "version": "1.0.0",
-  "description": "Chat Wars Client app",
+  "description": "ChatWars REST API",
   "main": "index.js",
   "scripts": {
     "babel-node": "babel-node",
     "start": "nodemon --exec npm run babel-node -- src/index.js"
   },
-  "author": "",
+  "author": "Alexander Levin",
   "license": "ISC",
   "dependencies": {
     "amqp-connection-manager": "^2.1.0",
