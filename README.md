@@ -4,7 +4,7 @@ ChatWars REST API server
 
 This api doesn't authorize client requests so isn't intended to be publicly accessible.
 
-The api server may be hosted privately and, serving as a backend, respond internally to another authorized api.
+The api server may be hosted privately to serve as a backend responding internally to another authorized api.
 
 ## Install
 
