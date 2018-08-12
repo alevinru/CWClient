@@ -227,3 +227,11 @@ Content-Type: text/plain; charset=utf-8
 
 UserIsBusy
 ```
+
+```
+HTTP/1.1 404 Not Found
+Content-Length: 17
+Content-Type: text/plain; charset=utf-8
+
+InsufficientFunds
+```

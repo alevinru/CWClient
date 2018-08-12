@@ -27,6 +27,7 @@ const CW_RESPONSE_OK = 'Ok';
 const CW_RESPONSE_NOT_REGISTERED = 'NotRegistered';
 const CW_RESPONSE_BAD_FORMAT = 'BadFormat';
 
+export const CW_RESPONSE_NO_FUNDS = 'InsufficientFunds';
 export const CW_RESPONSE_USER_BUSY = 'UserIsBusy';
 export const CW_RESPONSE_BATTLE_IS_NEAR = 'BattleIsNear';
 export const CW_RESPONSE_WRONG_USER_ID = 'NoSuchUser';
@@ -423,8 +424,9 @@ async function onCheckExchange(ch, cache) {
 
     switch (result) {
 
+      case CW_RESPONSE_NO_FUNDS:
       case CW_RESPONSE_NO_OFFERS: {
-        rejectCached(cached, CW_RESPONSE_NO_OFFERS);
+        rejectCached(cached, result);
         break;
       }
 

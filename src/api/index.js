@@ -113,6 +113,7 @@ function handleException(ctx, err) {
       break;
     }
 
+    case CWErrors.CW_RESPONSE_NO_FUNDS:
     case CWErrors.CW_RESPONSE_WRONG_USER_ID:
     case CWErrors.NOT_FOUND:
     case CWErrors.CW_RESPONSE_NO_OFFERS: {
