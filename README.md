@@ -16,12 +16,12 @@ A sample of the NodeJs library usage is demonstrated in [alevinru/CWClientHelper
 
 If you don't interested in utilising REST API, then you could go straight to the sample project, and do not setup the REST Api server described below. Nethertheless, in order to serve bot you will have to provide some env variables declared by this project.
 
-#### Install in shell
+#### Shell
 ```shell
 npm i --save cw-rest-api
 ```
 
-#### Import in NodeJS
+#### NodeJS
 ```node
 import CWExchange from 'cw-rest-api';
 
