@@ -224,15 +224,15 @@ async function onCheckExchange(ch, cache) {
 
   debug('Bind success', QUEUE_O);
 
-  await ch.consume(QUEUE_I, onConsumeResolve)
-    .then(onConsumeInit(QUEUE_I));
-
+  // await ch.consume(QUEUE_I, onConsumeResolve)
+  //   .then(onConsumeInit(QUEUE_I));
+  //
   // await ch.consume(QUEUE_DEALS, onConsumeLog)
   //   .then(onConsumeInit(QUEUE_DEALS));
   //
-  await ch.consume(QUEUE_AU, onConsumeLog)
-    .then(onConsumeInit(QUEUE_AU));
-
+  // await ch.consume(QUEUE_AU, onConsumeLog)
+  //   .then(onConsumeInit(QUEUE_AU));
+  //
   // await ch.consume(QUEUE_SEX, onConsumeLog)
   //   .then(onConsumeInit(QUEUE_SEX));
   //
