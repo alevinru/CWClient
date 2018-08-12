@@ -25,8 +25,35 @@ npm i --save cw-rest-api
 ```node
 import CWExchange from 'cw-rest-api';
 
+// CWExchange in single-user mode
+const USER_ID = process.env.USER_ID;
+
 const cw = new CWExchange(); // optional params { appName, timeOut }
-cw.connect(); // optional params { apiUrl, accessToken, amqpProtocol }
+const manager = cw.connect(); // optional params { apiUrl, accessToken, amqpProtocol }
+
+// manager is an instance of [amqp-connection-manager](amqp-connection-manager)
+
+manager.on('connected', async () => {
+
+  try {
+  
+    const profile = await cw.requestProfile(USER_ID)
+    console.log(profile);
+
+    const stock = await cw.requestStock(USER_ID);
+    console.log(profile);
+
+    // as a promse without await
+
+    cw.wantToBuy(USER_ID, { itemCode: '07', quantity: 12, price: 1 })
+      .then(deal => console.log(deal))
+      .catch(errorText => cosole.error(errorText));
+  
+  } catch (e) {
+    console.error(e);
+  }
+    
+});
 ```
 
 
