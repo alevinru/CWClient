@@ -169,3 +169,13 @@ Date: Sun, 12 Aug 2018 01:16:18 GMT
 
 InvalidToken
 ```
+
+```
+HTTP/1.1 502 Bad Gateway
+Connection: keep-alive
+Content-Length: 12
+Content-Type: text/plain; charset=utf-8
+Date: Sun, 12 Aug 2018 01:16:18 GMT
+
+BattleIsNear
+```
