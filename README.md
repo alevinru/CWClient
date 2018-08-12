@@ -26,7 +26,7 @@ export APP_NAME=username
 export ACCESS_TOKEN=password
 ```
 
-By default, http server starts on port 8888 and APi connects to CW3 api instance. 
+By default, http server starts on port 8888 and connects to CW3 api instance. 
 This is configurable with environment variables for which default values are provided in the bundled [nodemon.json](nodemon.json) file.
 
 
