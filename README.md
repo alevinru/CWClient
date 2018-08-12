@@ -2,7 +2,7 @@
 
 ChatWars REST API server
 
-> This api doesn't authorize client requests so isn't intended to be publicly accessible.
+> ⚠️ This api doesn't authorize client requests so isn't intended to be publicly accessible.
 
 The server may be hosted privately to serve as a backend responding internally to another authorized api.
 
@@ -160,7 +160,7 @@ Now stop and restart API server and you should be able to use all the rest of th
 
 Method does `exactMatch:true` requests
 
-> If you regullary do a noticeable amount of over-the-marked priced buys they would revoke CW API credentials from you
+> ⚠️ If you regullary do a noticeable amount of over-the-marked priced buys they would revoke CW API credentials from you
 
 Sample result assuming quantity is 1 and itemCode is 07
 
