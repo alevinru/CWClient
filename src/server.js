@@ -2,7 +2,7 @@ import Koa from 'koa';
 import bodyParser from 'koa-body';
 import api from './api';
 
-const debug = require('debug')('laa:chw:server');
+const debug = require('debug')('laa:cwc:server');
 
 const { PORT } = process.env;
 const app = new Koa();
