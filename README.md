@@ -10,9 +10,9 @@ Next release to be configurable to support Redis as persistent storage.
 
 ### NodeJS interface
 
-This project, being imported as an NPM package, provides promise-based ChatWars interface.
+This project provides promise-based ChatWars interface as an NPM library.
 
-A sample of the module usage in NodeJS is demonstrated in [alevinru/CWClientHelperAppBot](https://github.com/alevinru/CWClientHelperAppBot) Telegram bot project.
+A sample of the NodeJs library usage is demonstrated in [alevinru/CWClientHelperAppBot](https://github.com/alevinru/CWClientHelperAppBot) Telegram bot project.
 
 ## Install
 
