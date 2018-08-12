@@ -1,7 +1,7 @@
 {
-  "name": "cwclient",
+  "name": "cw-rest-api",
   "version": "1.0.0",
-  "description": "Chat Wars Client app",
+  "description": "ChatWars REST API",
   "main": "index.js",
   "scripts": {
     "babel-node": "babel-node",
