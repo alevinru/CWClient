@@ -2,9 +2,7 @@ import { connect as amqpConnect } from 'amqp-connection-manager';
 import v4 from 'uuid/v4';
 import isString from 'lodash/isString';
 
-import MessageCache, {
-  ACTION_PROFILE, ACTION_GET_INFO, ACTION_REQUEST_STOCK, ACTION_WTB, ACTION_AUTH_SEND, ACTION_GRANT_TOKEN,
-} from './MessageCache';
+import MessageCache, * as Msg from './MessageCache';
 import database from '../db';
 import itemsByName from '../db/itemsByName';
 
@@ -18,10 +16,10 @@ const EX = 'ex';
 const QUEUE_I = 'i';
 const QUEUE_O = 'o';
 
-const QUEUE_DEALS = 'deals';
-const QUEUE_OFFERS = 'offers';
-const QUEUE_SEX = 'sex_digest';
-const QUEUE_AU = 'au_digest';
+// const QUEUE_DEALS = 'deals';
+// const QUEUE_OFFERS = 'offers';
+// const QUEUE_SEX = 'sex_digest';
+// const QUEUE_AU = 'au_digest';
 
 const CW_TIMEOUT = parseInt(process.env.CW_TIMEOUT, 0) || 5000;
 
@@ -148,7 +146,7 @@ export default class CWExchange {
   sendAuth(userId) {
 
     const message = {
-      action: ACTION_AUTH_SEND,
+      action: Msg.Msg.ACTION_AUTH_SEND,
       payload: { userId },
     };
 
@@ -161,7 +159,7 @@ export default class CWExchange {
   sendGrantToken(userId, authCode) {
 
     const message = {
-      action: ACTION_GRANT_TOKEN,
+      action: Msg.Msg.ACTION_GRANT_TOKEN,
       payload: { userId, authCode },
     };
 
@@ -172,7 +170,7 @@ export default class CWExchange {
   }
 
   getInfo() {
-    return this.sendMessage({ action: ACTION_GET_INFO });
+    return this.sendMessage({ action: Msg.ACTION_GET_INFO });
   }
 
   async wantToBy(userId, params) {
@@ -189,7 +187,7 @@ export default class CWExchange {
 
     const message = {
       userId,
-      action: ACTION_WTB,
+      action: Msg.ACTION_WTB,
       token: tokenData.token,
       payload: {
         itemCode, quantity: parseInt(quantity, 0), price: parseInt(price, 0), exactPrice,
@@ -211,7 +209,7 @@ export default class CWExchange {
     }
 
     const message = {
-      action: ACTION_REQUEST_STOCK,
+      action: Msg.ACTION_REQUEST_STOCK,
       token: tokenData.token,
     };
 
@@ -228,7 +226,7 @@ export default class CWExchange {
     }
 
     const message = {
-      action: ACTION_PROFILE,
+      action: Msg.ACTION_PROFILE,
       token: tokenData.token,
     };
 
@@ -295,20 +293,20 @@ async function onCheckExchange(ch) {
         break;
       }
 
-      case ACTION_GET_INFO: {
+      case Msg.ACTION_GET_INFO: {
         processGetInfoResponse(result, payload);
         break;
       }
 
-      case ACTION_WTB: {
+      case Msg.ACTION_WTB: {
         processWantToBuyResponse(result, payload);
         break;
       }
 
-      case ACTION_GRANT_TOKEN:
-      case ACTION_AUTH_SEND:
-      case ACTION_REQUEST_STOCK:
-      case ACTION_PROFILE: {
+      case Msg.ACTION_GRANT_TOKEN:
+      case Msg.ACTION_AUTH_SEND:
+      case Msg.ACTION_REQUEST_STOCK:
+      case Msg.ACTION_PROFILE: {
 
         processProfileResponse(responseCode, result, payload);
         break;
@@ -389,9 +387,9 @@ async function onCheckExchange(ch) {
 
   function processGetInfoResponse(result, payload) {
 
-    const cached = cache.pop(ACTION_PROFILE);
+    const cached = cache.pop(Msg.ACTION_PROFILE);
 
-    debug('processGetInfoResponse', ACTION_PROFILE, result);
+    debug('processGetInfoResponse', Msg.ACTION_PROFILE, result);
 
     if (result === CW_RESPONSE_OK) {
       resolveCached(cached, payload);
@@ -435,7 +433,7 @@ async function onCheckExchange(ch) {
     const itemCode = itemsByName[itemName];
 
     if (result === CW_RESPONSE_USER_BUSY) {
-      const cached = cache.popByPredicate(ACTION_WTB, { userId });
+      const cached = cache.popByPredicate(Msg.ACTION_WTB, { userId });
       rejectCached(cached, result);
       return;
     }
@@ -445,9 +443,9 @@ async function onCheckExchange(ch) {
       return;
     }
 
-    const cached = cache.pop(ACTION_WTB, `${userId}_${itemCode}_${quantity}`);
+    const cached = cache.pop(Msg.ACTION_WTB, `${userId}_${itemCode}_${quantity}`);
 
-    debug('processWantToBuyResponse', ACTION_WTB, result, itemName, quantity);
+    debug('processWantToBuyResponse', Msg.ACTION_WTB, result, itemName, quantity);
 
     switch (result) {
 
@@ -470,6 +468,7 @@ async function onCheckExchange(ch) {
 
   }
 
+  // eslint-disable-next-line
   function onConsumeLog(msg) {
     const { fields, properties, content } = msg;
     const { exchange, deliveryTag } = fields;

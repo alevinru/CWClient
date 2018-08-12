@@ -5,8 +5,9 @@
   "main": "lib/index.js",
   "repository": "git@github.com:alevinru/CWClient.git",
   "scripts": {
+    "lint": "eslint src",
     "babel-node": "babel-node",
-    "start": "nodemon --exec npm run babel-node -- src/index.js",
+    "start": "nodemon --exec 'npm run lint && babel-node' -- src/index.js",
     "build": "babel src -d lib"
   },
   "author": "Alexander Levin",

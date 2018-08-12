@@ -1,3 +1,5 @@
+/* eslint-disable quote-props */
+
 export default {
   'Thread': '01',
   'Stick': '02',
@@ -71,5 +73,5 @@ export default {
   'Bottle of Mana': 'p15',
   'Vial of Twilight': 'p16',
   'Vial of Morph': 'p19',
-  'Bottle of Morph': 'p21'
+  'Bottle of Morph': 'p21',
 };
