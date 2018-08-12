@@ -1,7 +1,6 @@
 import Router from 'koa-router';
 import exchange from '../exchange';
 import * as CWErrors from '../exchange/CWExchange';
-import { CW_RESPONSE_WRONG_USER_ID } from "../exchange/CWExchange";
 
 const debug = require('debug')('laa:cwc:api');
 

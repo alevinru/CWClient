@@ -2,10 +2,11 @@
   "name": "cw-rest-api",
   "version": "1.0.0",
   "description": "ChatWars REST API",
-  "main": "index.js",
+  "main": "lib/index.js",
   "scripts": {
     "babel-node": "babel-node",
-    "start": "nodemon --exec npm run babel-node -- src/index.js"
+    "start": "nodemon --exec npm run babel-node -- src/index.js",
+    "build": "babel src -d lib"
   },
   "author": "Alexander Levin",
   "license": "ISC",
