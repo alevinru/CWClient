@@ -2,9 +2,9 @@
 
 ChatWars REST API server
 
-This api doesn't authorize client requests so isn't intended to be publicly accessible.
+> This api doesn't authorize client requests so isn't intended to be publicly accessible.
 
-The api server may be hosted privately to serve as a backend responding internally to another authorized api.
+The server may be hosted privately to serve as a backend responding internally to another authorized api.
 
 ## Install
 
@@ -157,6 +157,10 @@ Now stop and restart API server and you should be able to use all the rest of th
 ```
 
 ### POST /buy/:itemCode?:userId&:quantity&:price
+
+Method does `exactMatch:true` requests
+
+> If you regullary do a noticeable amount of over-the-marked priced buys they would ban you revoking CW API credentials
 
 Sample result assuming quantity is 1 and itemCode is 07
 
