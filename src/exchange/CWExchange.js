@@ -1,5 +1,7 @@
 import { connect as amqpConnect } from 'amqp-connection-manager';
 import v4 from 'uuid/v4';
+import isString from 'lodash/isString';
+
 import MessageCache, {
   ACTION_PROFILE, ACTION_GET_INFO, ACTION_REQUEST_STOCK, ACTION_WTB, ACTION_AUTH_SEND, ACTION_GRANT_TOKEN,
 } from './MessageCache';
@@ -12,14 +14,14 @@ const {
 
 const debug = require('debug')('laa:cwc:exchange');
 
-const EX = queueName('ex');
-const QUEUE_I = queueName('i');
-const QUEUE_O = queueName('o');
+const EX = 'ex';
+const QUEUE_I = 'i';
+const QUEUE_O = 'o';
 
-const QUEUE_DEALS = queueName('deals');
-const QUEUE_OFFERS = queueName('offers');
-const QUEUE_SEX = queueName('sex_digest');
-const QUEUE_AU = queueName('au_digest');
+const QUEUE_DEALS = 'deals';
+const QUEUE_OFFERS = 'offers';
+const QUEUE_SEX = 'sex_digest';
+const QUEUE_AU = 'au_digest';
 
 const CW_TIMEOUT = parseInt(process.env.CW_TIMEOUT, 0) || 5000;
 
@@ -40,17 +42,29 @@ export const TIMED_OUT = 'Time out request to CW';
 
 export default class CWExchange {
 
-  constructor() {
+  constructor(config = {}) {
 
-    debug('Init', API_URL, APP_NAME);
+    const { appName, timeOut } = config;
+
+
+    this.appName = appName || APP_NAME;
+    this.timeOut = timeOut || CW_TIMEOUT;
 
     this.cache = new MessageCache();
 
+    debug('Init', this.appName);
+
   }
 
-  connect() {
+  connect(connectionParams = {}) {
 
-    const manager = amqpConnect([`${AMQP_PROTOCOL}://${APP_NAME}:${ACCESS_TOKEN}@${API_URL}`]);
+    const {
+      apiUrl = API_URL,
+      accessToken = ACCESS_TOKEN,
+      amqpProtocol = AMQP_PROTOCOL || 'amqps',
+    } = connectionParams;
+
+    const manager = amqpConnect([`${amqpProtocol}://${this.appName}:${accessToken}@${apiUrl}`]);
 
     manager.on('connect', () => {
       debug('Manager connected');
@@ -70,8 +84,8 @@ export default class CWExchange {
 
         this.channel = channel;
 
-        return channel.checkExchange(EX, '', { durable: true })
-          .then(() => onCheckExchange(channel, this.cache));
+        return channel.checkExchange(this.queueName(EX), '', { durable: true })
+          .then(() => onCheckExchange.call(this, channel));
 
       },
 
@@ -79,15 +93,26 @@ export default class CWExchange {
 
   }
 
+  queueName(code) {
+    return `${this.appName}_${code}`;
+  }
+
   publish(msg, messageId = v4()) {
     const options = { messageId };
-    return this.channel.publish(EX, QUEUE_O, Buffer.from(JSON.stringify(msg)), options);
+    const ex = this.queueName(EX);
+    const queue = this.queueName(QUEUE_O);
+    return this.channel.publish(ex, queue, Buffer.from(JSON.stringify(msg)), options);
   }
 
   sendMessage(message, domainKey) {
 
-    const { action } = message;
+    const { action, userId } = message;
     const messageId = v4();
+
+    if (isString(userId)) {
+      // eslint-disable-next-line
+      message.userId = parseInt(userId, 0);
+    }
 
     debug('sendMessage', action, messageId);
 
@@ -99,7 +124,7 @@ export default class CWExchange {
         reject(TIMED_OUT);
       };
 
-      const timeOut = setTimeout(onTimeout, CW_TIMEOUT);
+      const timeOut = setTimeout(onTimeout, this.timeOut);
       const options = Object.assign({ resolve, reject, timeOut }, message);
 
       this.cache.push(action, domainKey, options);
@@ -219,23 +244,25 @@ Private
  */
 
 
-async function onCheckExchange(ch, cache) {
+async function onCheckExchange(ch) {
+
+  const { cache } = this;
 
   debug('CheckExchange success');
 
-  await ch.bindQueue(QUEUE_O, EX);
+  await ch.bindQueue(this.queueName(QUEUE_O), this.queueName(EX));
 
-  debug('Bind success', QUEUE_O);
+  debug('Bind success', this.queueName(QUEUE_O));
 
-  await ch.consume(QUEUE_I, message => {
+  await ch.consume(this.queueName(QUEUE_I), message => {
     try {
       onConsumeResolve(message);
     } catch (err) {
-      debug(`Error consuming ${QUEUE_I}`, err.toString());
+      debug(`Error consuming ${this.queueName(QUEUE_I)}`, err.toString());
     }
   });
 
-  onConsumeInit(QUEUE_I);
+  onConsumeInit(this.queueName(QUEUE_I));
 
   // await ch.consume(QUEUE_DEALS, onConsumeLog)
   //   .then(onConsumeInit(QUEUE_DEALS));
@@ -458,11 +485,3 @@ async function onCheckExchange(ch, cache) {
   }
 
 }
-
-function queueName(code) {
-  return `${APP_NAME}_${code}`;
-}
-
-// function payload(content) {
-//   return JSON.parse(content.toString());
-// }
