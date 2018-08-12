@@ -35,7 +35,7 @@ manager.on('connect', async () => {
     const stock = await cw.requestStock(USER_ID);
     console.log(profile);
 
-    // as a promse without await
+    // as a promise without await
 
     cw.wantToBuy(USER_ID, { itemCode: '07', quantity: 12, price: 1 })
       .then(deal => console.log(deal))
