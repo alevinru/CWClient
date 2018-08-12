@@ -224,9 +224,16 @@ async function onCheckExchange(ch, cache) {
 
   debug('Bind success', QUEUE_O);
 
-  // await ch.consume(QUEUE_I, onConsumeResolve)
-  //   .then(onConsumeInit(QUEUE_I));
-  //
+  await ch.consume(QUEUE_I, message => {
+    try {
+      onConsumeResolve(message);
+    } catch (err) {
+      debug(`Error consuming ${QUEUE_I}`, err.toString());
+    }
+  });
+
+  onConsumeInit(QUEUE_I);
+
   // await ch.consume(QUEUE_DEALS, onConsumeLog)
   //   .then(onConsumeInit(QUEUE_DEALS));
   //
