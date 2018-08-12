@@ -89,6 +89,8 @@ export default class CWExchange {
 
     });
 
+    return manager;
+
   }
 
   queueName(code) {
