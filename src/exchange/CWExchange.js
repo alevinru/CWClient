@@ -28,6 +28,7 @@ const CW_RESPONSE_BATTLE_IS_NEAR = 'BattleIsNear';
 const CW_RESPONSE_NOT_REGISTERED = 'NotRegistered';
 const CW_RESPONSE_BAD_FORMAT = 'BadFormat';
 
+export const CW_RESPONSE_NO_OFFERS = 'NoOffersFoundByPrice';
 export const CW_RESPONSE_INVALID_CODE = 'InvalidCode';
 export const CW_RESPONSE_INVALID_TOKEN = 'InvalidToken';
 
@@ -399,10 +400,22 @@ async function onCheckExchange(ch, cache) {
 
     debug('processWantToBuyResponse', ACTION_WTB, result, itemName, quantity);
 
-    if (result === CW_RESPONSE_OK) {
-      resolveCached(cached, payload);
-    } else {
-      rejectCached(cached, payload);
+    switch (result) {
+
+      case CW_RESPONSE_NO_OFFERS: {
+        rejectCached(cached, CW_RESPONSE_NO_OFFERS);
+        break;
+      }
+
+      case CW_RESPONSE_OK: {
+        resolveCached(cached, payload);
+        break;
+      }
+
+      default: {
+        rejectCached(cached, payload);
+      }
+
     }
 
   }

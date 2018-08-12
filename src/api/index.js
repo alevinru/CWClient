@@ -1,6 +1,6 @@
 import Router from 'koa-router';
 import exchange from '../exchange';
-import { NOT_FOUND, TIMED_OUT, CW_RESPONSE_INVALID_TOKEN, CW_RESPONSE_INVALID_CODE } from '../exchange/CWExchange';
+import * as CWErrors from '../exchange/CWExchange';
 
 const debug = require('debug')('laa:cwc:api');
 
@@ -15,7 +15,8 @@ router.post('/auth/:userId', async ctx => {
 
   debug('auth', userId);
 
-  ctx.body = await exchange.sendAuth(parseInt(userId, 0));
+  ctx.body = await exchange.sendAuth(parseInt(userId, 0))
+    .catch(exceptionHandler(ctx));
 
 });
 
@@ -43,20 +44,7 @@ router.get('/profile/:userId', async ctx => {
   try {
     ctx.body = await exchange.requestProfile(parseInt(userId, 0));
   } catch (err) {
-
-    const { response } = ctx;
-
-    if (err === NOT_FOUND) {
-      response.status = 404;
-    } else if (err === TIMED_OUT) {
-      response.status = 504;
-    } else if (err === CW_RESPONSE_INVALID_TOKEN) {
-      response.status = 404;
-      ctx.body = CW_RESPONSE_INVALID_TOKEN;
-    } else {
-      throw new Error(err);
-    }
-
+    handleException(ctx, err);
   }
 
 });
@@ -70,20 +58,7 @@ router.get('/stock/:userId', async ctx => {
   try {
     ctx.body = await exchange.requestStock(parseInt(userId, 0));
   } catch (err) {
-
-    const { response } = ctx;
-
-    if (err === NOT_FOUND) {
-      response.status = 404;
-    } else if (err === TIMED_OUT) {
-      response.status = 504;
-    } else if (err === CW_RESPONSE_INVALID_TOKEN) {
-      response.status = 404;
-      ctx.body = CW_RESPONSE_INVALID_TOKEN;
-    } else {
-      throw new Error(err);
-    }
-
+    handleException(ctx, err);
   }
 
 });
@@ -97,20 +72,7 @@ router.post('/buy/:itemCode', async ctx => {
   try {
     ctx.body = await exchange.wantToBy(parseInt(userId, 0), { itemCode, quantity, price });
   } catch (err) {
-
-    const { response } = ctx;
-
-    if (err === NOT_FOUND) {
-      response.status = 404;
-    } else if (err === TIMED_OUT) {
-      response.status = 504;
-    } else if (err === CW_RESPONSE_INVALID_TOKEN) {
-      response.status = 404;
-      ctx.body = CW_RESPONSE_INVALID_TOKEN;
-    } else {
-      throw new Error(err);
-    }
-
+    handleException(ctx, err);
   }
 
 });
@@ -122,23 +84,14 @@ router.get('/info', async ctx => {
   try {
     ctx.body = await exchange.getInfo();
   } catch (err) {
-
-    const { response } = ctx;
-
-    if (err === NOT_FOUND) {
-      response.status = 404;
-    } else if (err === TIMED_OUT) {
-      response.status = 504;
-    } else if (err === CW_RESPONSE_INVALID_TOKEN) {
-      response.status = 404;
-      ctx.body = CW_RESPONSE_INVALID_TOKEN;
-    } else {
-      throw new Error(err);
-    }
-
+    handleException(ctx, err);
   }
 
 });
+
+function exceptionHandler(ctx) {
+  return err => handleException(ctx, err);
+}
 
 function handleException(ctx, err) {
 
@@ -146,18 +99,36 @@ function handleException(ctx, err) {
 
   debug('handleException', err);
 
-  if (err === CW_RESPONSE_INVALID_CODE) {
-    response.status = 400;
-    ctx.body = err;
-  } else if (err === NOT_FOUND) {
-    response.status = 404;
-  } else if (err === TIMED_OUT) {
-    response.status = 504;
-  } else if (err === CW_RESPONSE_INVALID_TOKEN) {
-    response.status = 404;
-    ctx.body = err;
-  } else {
-    throw new Error(err);
+  switch (err) {
+
+    case CWErrors.NOT_FOUND:
+    case CWErrors.CW_RESPONSE_NO_OFFERS: {
+      response.status = 404;
+      break;
+    }
+
+    case CWErrors.CW_RESPONSE_INVALID_CODE: {
+      response.status = 400;
+      ctx.body = err;
+      break;
+    }
+
+    case CWErrors.TIMED_OUT: {
+      response.status = 504;
+      break;
+    }
+
+    case CWErrors.CW_RESPONSE_INVALID_TOKEN: {
+      response.status = 401;
+      ctx.body = err;
+      break;
+    }
+
+    default: {
+      throw new Error(err);
+    }
+
   }
+
 
 }
