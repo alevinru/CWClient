@@ -1,6 +1,7 @@
 import Router from 'koa-router';
 import exchange from '../exchange';
 import * as CWErrors from '../exchange/CWExchange';
+import { CW_RESPONSE_WRONG_USER_ID } from "../exchange/CWExchange";
 
 const debug = require('debug')('laa:cwc:api');
 
@@ -15,8 +16,11 @@ router.post('/auth/:userId', async ctx => {
 
   debug('auth', userId);
 
-  ctx.body = await exchange.sendAuth(parseInt(userId, 0))
-    .catch(exceptionHandler(ctx));
+  try {
+    ctx.body = await exchange.sendAuth(parseInt(userId, 0));
+  } catch (err) {
+    exceptionHandler(ctx)(err);
+  }
 
 });
 
@@ -101,26 +105,23 @@ function handleException(ctx, err) {
 
   switch (err) {
 
+    case CWErrors.CW_RESPONSE_WRONG_USER_ID:
     case CWErrors.NOT_FOUND:
     case CWErrors.CW_RESPONSE_NO_OFFERS: {
       response.status = 404;
+      ctx.body = err;
       break;
     }
 
+    case CWErrors.CW_RESPONSE_INVALID_TOKEN:
     case CWErrors.CW_RESPONSE_INVALID_CODE: {
-      response.status = 400;
+      response.status = 401;
       ctx.body = err;
       break;
     }
 
     case CWErrors.TIMED_OUT: {
       response.status = 504;
-      break;
-    }
-
-    case CWErrors.CW_RESPONSE_INVALID_TOKEN: {
-      response.status = 401;
-      ctx.body = err;
       break;
     }
 

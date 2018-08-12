@@ -28,6 +28,7 @@ const CW_RESPONSE_BATTLE_IS_NEAR = 'BattleIsNear';
 const CW_RESPONSE_NOT_REGISTERED = 'NotRegistered';
 const CW_RESPONSE_BAD_FORMAT = 'BadFormat';
 
+export const CW_RESPONSE_WRONG_USER_ID = 'NoSuchUser';
 export const CW_RESPONSE_NO_OFFERS = 'NoOffersFoundByPrice';
 export const CW_RESPONSE_INVALID_CODE = 'InvalidCode';
 export const CW_RESPONSE_INVALID_TOKEN = 'InvalidToken';
@@ -305,9 +306,14 @@ async function onCheckExchange(ch, cache) {
           break;
         }
 
+        case CW_RESPONSE_WRONG_USER_ID: {
+          rejectCached(cache.popByPredicate(action, {}), result);
+          break;
+        }
+
         case CW_RESPONSE_INVALID_TOKEN: {
           const { token } = payload;
-          rejectCached(cache.popByPredicate(action, { token }), CW_RESPONSE_INVALID_TOKEN);
+          rejectCached(cache.popByPredicate(action, { token }), result);
           break;
         }
 
