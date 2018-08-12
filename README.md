@@ -2,9 +2,11 @@
 
 ChatWars REST API server
 
-This api doesn't authorize client requests so isn't intended to be publicly accessible.
+> ⚠️ This API doesn't authorize client requests so isn't intended to be publicly accessible.
+The server may be hosted only privately to serve as a backend responding internally to another authorized api.
 
-The api server may be hosted privately to serve as a backend responding internally to another authorized api.
+At the moment the API has no persistence and serves for one user only.
+Next release to be configurable to support Redis as persistent storage.
 
 ## Install
 
@@ -24,6 +26,10 @@ export APP_NAME=username
 export ACCESS_TOKEN=password
 ```
 
+By default, http server starts on port 8888 and APi connects to CW3 api instance. 
+This is configurable with environment variables for which default values are provided in the bundled [nodemon.json](nodemon.json) file.
+
+
 ## Run
 
 ```Shell
@@ -33,7 +39,7 @@ npm run start
 Upon success you need to get a valid CW `usesId` and ask that user for an authorization doing:
 
 ```
-http POST /api/auth/101010101
+http POST localhost:8888/api/auth/101010101
 ```
 
 Then CW Telegram Bot sends an authorization request message to the user Telegram account
@@ -72,7 +78,7 @@ Now stop and restart API server and you should be able to use all the rest of th
 
 ## REST API Methods
 
-### POST /auth/:userId
+### POST /api/auth/:userId
 
 ```json
 {
@@ -80,7 +86,7 @@ Now stop and restart API server and you should be able to use all the rest of th
 }
 ```  
 
-### POST /token/:userId/:authCode
+### POST /api/token/:userId/:authCode
 
 ```json
 {
@@ -90,7 +96,7 @@ Now stop and restart API server and you should be able to use all the rest of th
 }
 ``` 
 
-### GET /profile/:userId
+### GET /api/profile/:userId
 
 ```json
 {
@@ -113,7 +119,7 @@ Now stop and restart API server and you should be able to use all the rest of th
 }
 ```
 
-### GET /stock/:userId
+### GET /api/stock/:userId
 
 ```json
 {
@@ -148,7 +154,7 @@ Now stop and restart API server and you should be able to use all the rest of th
 }
 ```
 
-### GET /info
+### GET /api/info
 
 ```json
 {
@@ -156,7 +162,11 @@ Now stop and restart API server and you should be able to use all the rest of th
 }
 ```
 
-### POST /buy/:itemCode?:userId&:quantity&:price
+### POST /api/buy/:itemCode?:userId&:quantity&:price
+
+Method does `exactMatch:true` requests
+
+> ⚠️ If you regullary do a noticeable amount of over-the-marked priced buys they would revoke CW API credentials from you
 
 Sample result assuming quantity is 1 and itemCode is 07
 
