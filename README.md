@@ -2,9 +2,11 @@
 
 ChatWars REST API server
 
-> ⚠️ This api doesn't authorize client requests so isn't intended to be publicly accessible.
+> ⚠️ This API doesn't authorize client requests so isn't intended to be publicly accessible.
+The server may be hosted only privately to serve as a backend responding internally to another authorized api.
 
-The server may be hosted privately to serve as a backend responding internally to another authorized api.
+At the moment the API has no persistence and serves only one user.
+Next release to be configurable to support Redis as persistent storage.
 
 ## Install
 
