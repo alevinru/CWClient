@@ -3,6 +3,7 @@
   "version": "1.0.1",
   "description": "ChatWars REST API",
   "main": "lib/index.js",
+  "repository": "git@github.com:alevinru/CWClient.git",
   "scripts": {
     "babel-node": "babel-node",
     "start": "nodemon --exec npm run babel-node -- src/index.js",
