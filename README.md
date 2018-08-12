@@ -160,7 +160,7 @@ Now stop and restart API server and you should be able to use all the rest of th
 
 Method does `exactMatch:true` requests
 
-> If you regullary do a noticeable amount of over-the-marked priced buys they would ban you revoking CW API credentials
+> If you regullary do a noticeable amount of over-the-marked priced buys they would revoke CW API credentials from you
 
 Sample result assuming quantity is 1 and itemCode is 07
 
