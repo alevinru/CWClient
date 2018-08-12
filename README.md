@@ -70,7 +70,7 @@ export USER_ID=101010101
 
 Now stop and restart API server and you should be able to use all the rest of the API methods
 
-## REST API
+## REST API Methods
 
 ### POST /auth/:userId
 
@@ -168,7 +168,7 @@ Sample result assuming quantity is 1 and itemCode is 07
 }
 ```
 
-### Error responses
+## HTTP Error responses
 
 ```
 HTTP/1.1 404 Not Found
