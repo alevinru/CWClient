@@ -16,8 +16,8 @@ cd CWClient
 
 ## Setup
 
-Since you've got managed to request and obtain valid CW API credentials you must have **username** and **password**.
-It is required to set them into the environment variables named respectively as **APP_NAME** and **ACCESS_TOKEN**.
+Since you've got managed to request and obtain valid CW API credentials you must have `username` and `password`.
+It is required to set them into the environment variables named respectively as `APP_NAME` and `ACCESS_TOKEN`.
 
 ```Shell
 export APP_NAME=username
@@ -30,7 +30,7 @@ export ACCESS_TOKEN=password
 npm run start
 ```
 
-Upon success you need to get a valid CW **usesId** and ask that user for an authorization doing:
+Upon success you need to get a valid CW `usesId` and ask that user for an authorization doing:
 
 ```
 http POST /api/auth/101010101
@@ -45,7 +45,7 @@ Code 11223344 to authorize aliovin_CWClientAppBot. This app will have the access
  - read your stock info
 ```
 
-Now you need to use this **code** to get USER_TOKEN:
+Now you need to use this `code` to get user `token`:
 
 ```
 http POST /api/token/101010101/11223344
@@ -61,7 +61,7 @@ If everything's fine you would get a response like that:
 }
 ```
 
-Finally you are to set both the userId and the received **token** to environment variables:
+Finally you are to set both the `userId` and the received `token` to environment variables:
 
 ```shell
 export USER_TOKEN=0c32d64ac6f348cfae7e441f317fd898
