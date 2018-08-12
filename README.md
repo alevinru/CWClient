@@ -10,7 +10,7 @@ Next release to be configurable to support Redis as persistent storage.
 
 ### NodeJS interface
 
-This project beign imported as anpm module provides promise-based ChatWars interface.
+This project, being imported as an NPM package, provides promise-based ChatWars interface.
 
 A sample of the module usage in NodeJS is demonstrated in [alevinru/CWClientHelperAppBot](https://github.com/alevinru/CWClientHelperAppBot) Telegram bot project.
 
