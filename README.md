@@ -40,7 +40,15 @@ npm run start
 }
 ```  
 
-POST /token/:userId/:authCode
+### POST /token/:userId/:authCode
+
+```json
+{
+    "id": "1a2346c48ee342367d0e6af3c155b744",
+    "token": "0c32d64ac6f348cfae7e441f317fd898'",
+    "userId": userId
+}
+``` 
 
 ### GET /profile/:userId
 
