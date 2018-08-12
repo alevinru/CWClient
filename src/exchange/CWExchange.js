@@ -254,9 +254,9 @@ async function onCheckExchange(ch) {
 
   debug('Bind success', this.queueName(QUEUE_O));
 
-  await ch.consume(this.queueName(QUEUE_I), message => {
+  await ch.consume(this.queueName(QUEUE_I), async message => {
     try {
-      onConsumeResolve(message);
+      await onConsumeResolve(message);
     } catch (err) {
       debug(`Error consuming ${this.queueName(QUEUE_I)}`, err.toString());
     }
@@ -278,7 +278,7 @@ async function onCheckExchange(ch) {
 
   return ch;
 
-  function onConsumeResolve(msg) {
+  async function onConsumeResolve(msg) {
 
     const { content } = msg;
     const { action, result, payload } = JSON.parse(content.toString());
@@ -310,7 +310,7 @@ async function onCheckExchange(ch) {
       case Msg.ACTION_REQUEST_STOCK:
       case Msg.ACTION_PROFILE: {
 
-        processProfileResponse(responseCode, result, payload);
+        await processProfileResponse(responseCode, result, payload);
         break;
 
       }
@@ -414,7 +414,7 @@ async function onCheckExchange(ch) {
 
   }
 
-  function processProfileResponse(action, result, payload) {
+  async function processProfileResponse(action, result, payload) {
 
     const { userId } = payload;
     const cached = cache.pop(action, userId);
@@ -422,6 +422,13 @@ async function onCheckExchange(ch) {
     debug('processProfileResponse', action, result);
 
     if (result === CW_RESPONSE_OK) {
+      if (action === Msg.ACTION_GRANT_TOKEN) {
+        try {
+          await database.setToken(userId, payload);
+        } catch (err) {
+          rejectCached(cached, payload);
+        }
+      }
       resolveCached(cached, payload);
     } else {
       rejectCached(cached, payload);
