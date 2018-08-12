@@ -103,11 +103,13 @@ function handleException(ctx, err) {
 
   debug('handleException', err);
 
+  ctx.body = err;
+
   switch (err) {
 
+    case CWErrors.CW_RESPONSE_USER_BUSY:
     case CWErrors.CW_RESPONSE_BATTLE_IS_NEAR: {
       response.status = 502;
-      ctx.body = err;
       break;
     }
 
@@ -115,14 +117,12 @@ function handleException(ctx, err) {
     case CWErrors.NOT_FOUND:
     case CWErrors.CW_RESPONSE_NO_OFFERS: {
       response.status = 404;
-      ctx.body = err;
       break;
     }
 
     case CWErrors.CW_RESPONSE_INVALID_TOKEN:
     case CWErrors.CW_RESPONSE_INVALID_CODE: {
       response.status = 401;
-      ctx.body = err;
       break;
     }
 

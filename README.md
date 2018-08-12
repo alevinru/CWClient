@@ -182,50 +182,48 @@ Sample result assuming quantity is 1 and itemCode is 07
 
 ```
 HTTP/1.1 404 Not Found
-Connection: keep-alive
 Content-Length: 20
 Content-Type: text/plain; charset=utf-8
-Date: Sun, 12 Aug 2018 01:05:59 GMT
 
 NoOffersFoundByPrice
 ```
 
 ```
 HTTP/1.1 404 Not Found
-Connection: keep-alive
 Content-Length: 10
 Content-Type: text/plain; charset=utf-8
-Date: Sun, 12 Aug 2018 01:06:59 GMT
 
 NoSuchUser
 ```
 
 ```
 HTTP/1.1 401 Unauthorized
-Connection: keep-alive
 Content-Length: 11
 Content-Type: text/plain; charset=utf-8
-Date: Sun, 12 Aug 2018 01:05:51 GMT
 
 InvalidCode
 ```
 
 ```
 HTTP/1.1 401 Unauthorized
-Connection: keep-alive
 Content-Length: 12
 Content-Type: text/plain; charset=utf-8
-Date: Sun, 12 Aug 2018 01:16:18 GMT
 
 InvalidToken
 ```
 
 ```
 HTTP/1.1 502 Bad Gateway
-Connection: keep-alive
 Content-Length: 12
 Content-Type: text/plain; charset=utf-8
-Date: Sun, 12 Aug 2018 01:16:18 GMT
 
 BattleIsNear
+```
+
+```
+HTTP/1.1 502 Bad Gateway
+Content-Length: 10
+Content-Type: text/plain; charset=utf-8
+
+UserIsBusy
 ```

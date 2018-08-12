@@ -27,6 +27,7 @@ const CW_RESPONSE_OK = 'Ok';
 const CW_RESPONSE_NOT_REGISTERED = 'NotRegistered';
 const CW_RESPONSE_BAD_FORMAT = 'BadFormat';
 
+export const CW_RESPONSE_USER_BUSY = 'UserIsBusy';
 export const CW_RESPONSE_BATTLE_IS_NEAR = 'BattleIsNear';
 export const CW_RESPONSE_WRONG_USER_ID = 'NoSuchUser';
 export const CW_RESPONSE_NO_OFFERS = 'NoOffersFoundByPrice';
@@ -161,6 +162,7 @@ export default class CWExchange {
     }
 
     const message = {
+      userId,
       action: ACTION_WTB,
       token: tokenData.token,
       payload: {
@@ -403,6 +405,12 @@ async function onCheckExchange(ch, cache) {
 
     const { itemName, quantity, userId } = payload;
     const itemCode = itemsByName[itemName];
+
+    if (result === CW_RESPONSE_USER_BUSY) {
+      const cached = cache.popByPredicate(ACTION_WTB, { userId });
+      rejectCached(cached, result);
+      return;
+    }
 
     if (!itemCode) {
       debug('processWantToBuyResponse:', 'unknown itemName:', itemName);
