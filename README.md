@@ -14,6 +14,9 @@ npm i --save cw-rest-api
 ```
 
 #### NodeJS
+
+[node-amqp-connection-manager](https://github.com/benbria/node-amqp-connection-manager) is used to provide AMQP node reconnection.
+
 ```node
 import CWExchange from 'cw-rest-api';
 
@@ -23,7 +26,7 @@ const USER_ID = process.env.USER_ID;
 const cw = new CWExchange(); // optional params { appName, timeOut }
 const manager = cw.connect(); // optional params { apiUrl, accessToken, amqpProtocol }
 
-// manager is an instance of [amqp-connection-manager](amqp-connection-manager)
+// manager is an instance of amqp-connection-manager
 
 manager.on('connect', async () => {
 
