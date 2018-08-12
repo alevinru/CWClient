@@ -110,4 +110,20 @@ npm run start
 
 ### GET /info
 
-### POST /buy/:itemCode?userId=&quantity=&price=
+```json
+{
+    "status": "NotRegistered"
+}
+```
+
+### POST /buy/:itemCode?:userId&:quantity&:price
+
+Sample result assuming quantity is 1 and itemCode is 07
+
+```json
+{
+    "itemName": "Powder",
+    "quantity": 1,
+    "userId": userId
+}
+```
