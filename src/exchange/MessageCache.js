@@ -8,6 +8,8 @@ export const ACTION_PROFILE = 'requestProfile';
 export const ACTION_GET_INFO = 'getInfo';
 export const ACTION_REQUEST_STOCK = 'requestStock';
 export const ACTION_WTB = 'wantToBuy';
+export const ACTION_AUTH_SEND = 'createAuthCode';
+export const ACTION_GRANT_TOKEN = 'grantToken';
 
 export default class MessageCache {
 
@@ -18,6 +20,8 @@ export default class MessageCache {
       [ACTION_GET_INFO]: {},
       [ACTION_REQUEST_STOCK]: {},
       [ACTION_WTB]: {},
+      [ACTION_AUTH_SEND]: {},
+      [ACTION_GRANT_TOKEN]: {},
     };
 
   }

@@ -1,6 +1,8 @@
 import { connect as amqpConnect } from 'amqp-connection-manager';
 import v4 from 'uuid/v4';
-import MessageCache, { ACTION_PROFILE, ACTION_GET_INFO, ACTION_REQUEST_STOCK, ACTION_WTB } from './MessageCache';
+import MessageCache, {
+  ACTION_PROFILE, ACTION_GET_INFO, ACTION_REQUEST_STOCK, ACTION_WTB, ACTION_AUTH_SEND, ACTION_GRANT_TOKEN,
+} from './MessageCache';
 import database from '../db';
 import itemsByName from '../db/itemsByName';
 
@@ -25,6 +27,8 @@ const CW_RESPONSE_OK = 'Ok';
 const CW_RESPONSE_BATTLE_IS_NEAR = 'BattleIsNear';
 const CW_RESPONSE_NOT_REGISTERED = 'NotRegistered';
 const CW_RESPONSE_BAD_FORMAT = 'BadFormat';
+
+export const CW_RESPONSE_INVALID_CODE = 'InvalidCode';
 export const CW_RESPONSE_INVALID_TOKEN = 'InvalidToken';
 
 export const NOT_FOUND = 'Not found';
@@ -113,21 +117,29 @@ export default class CWExchange {
    */
 
   sendAuth(userId) {
-    const msg = {
-      action: 'createAuthCode',
+
+    const message = {
+      action: ACTION_AUTH_SEND,
       payload: { userId },
     };
-    debug('sendAuth', msg);
-    return this.publish(msg);
+
+    debug('sendAuth to:', userId);
+
+    return this.sendMessage(message, userId);
+
   }
 
   sendGrantToken(userId, authCode) {
-    const msg = {
-      action: 'grantToken',
+
+    const message = {
+      action: ACTION_GRANT_TOKEN,
       payload: { userId, authCode },
     };
-    debug('sendGrantToken', msg);
-    return this.publish(msg);
+
+    debug('sendGrantToken', message);
+
+    return this.sendMessage(message, userId);
+
   }
 
   getInfo() {
@@ -239,6 +251,11 @@ async function onCheckExchange(ch, cache) {
 
     switch (responseCode) {
 
+      case CW_RESPONSE_INVALID_TOKEN: {
+        processResponseException(action, result, payload);
+        break;
+      }
+
       case ACTION_GET_INFO: {
         processGetInfoResponse(result, payload);
         break;
@@ -249,6 +266,8 @@ async function onCheckExchange(ch, cache) {
         break;
       }
 
+      case ACTION_GRANT_TOKEN:
+      case ACTION_AUTH_SEND:
       case ACTION_REQUEST_STOCK:
       case ACTION_PROFILE: {
 
@@ -271,20 +290,34 @@ async function onCheckExchange(ch, cache) {
 
     function checkExceptions() {
 
-      if (result === CW_RESPONSE_BATTLE_IS_NEAR) {
-        debug('checkExceptions', result);
-      } else if (result === CW_RESPONSE_BAD_FORMAT) {
-        // const { token } = payload;
-        // rejectCached(cache.popByPredicate(action, { token }), CW_RESPONSE_BAD_FORMAT);
-        debug('checkExceptions', result);
-      } else if (result === CW_RESPONSE_INVALID_TOKEN) {
-        const { token } = payload;
-        rejectCached(cache.popByPredicate(action, { token }), CW_RESPONSE_INVALID_TOKEN);
-      } else if (result === CW_RESPONSE_NOT_REGISTERED) {
-        resolveCached(cache.popByPredicate(action, {}), { status: CW_RESPONSE_NOT_REGISTERED });
-      } else {
+      switch (result) {
 
-        return false;
+        case CW_RESPONSE_INVALID_CODE: {
+          const { userId } = payload;
+          rejectCached(cache.pop(action, userId), CW_RESPONSE_INVALID_CODE);
+          break;
+        }
+
+        case CW_RESPONSE_BAD_FORMAT:
+        case CW_RESPONSE_BATTLE_IS_NEAR: {
+          debug('checkExceptions', result);
+          break;
+        }
+
+        case CW_RESPONSE_INVALID_TOKEN: {
+          const { token } = payload;
+          rejectCached(cache.popByPredicate(action, { token }), CW_RESPONSE_INVALID_TOKEN);
+          break;
+        }
+
+        case CW_RESPONSE_NOT_REGISTERED: {
+          resolveCached(cache.popByPredicate(action, {}), { status: CW_RESPONSE_NOT_REGISTERED });
+          break;
+        }
+
+        default: {
+          return false;
+        }
 
       }
 
@@ -320,6 +353,19 @@ async function onCheckExchange(ch, cache) {
       resolveCached(cached, payload);
     } else {
       rejectCached(cached, payload);
+    }
+
+  }
+
+  function processResponseException(action, result, payload) {
+
+    const { userId } = payload;
+    const cached = cache.pop(action, userId);
+
+    debug('processResponseException', action, result);
+
+    if (result === CW_RESPONSE_INVALID_TOKEN) {
+      rejectCached(cached, result);
     }
 
   }
