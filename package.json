@@ -7,7 +7,7 @@
     "babel-node": "babel-node",
     "start": "nodemon --exec npm run babel-node -- src/index.js"
   },
-  "author": "",
+  "author": "Alexander Levin",
   "license": "ISC",
   "dependencies": {
     "amqp-connection-manager": "^2.1.0",
