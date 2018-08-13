@@ -22,6 +22,7 @@ import CWExchange from 'cw-rest-api';
 
 // CWExchange in single-user mode
 const USER_ID = process.env.USER_ID;
+const USER_TOKEN = process.env.USER_TOKEN;
 
 const cw = new CWExchange(); // optional params { appName, timeOut }
 const manager = cw.connect(); // optional params { apiUrl, accessToken, amqpProtocol }
@@ -31,33 +32,27 @@ const manager = cw.connect(); // optional params { apiUrl, accessToken, amqpProt
 manager.on('connect', async () => {
 
   try {
-  
-    const profile = await cw.requestProfile(USER_ID)
+
+    const profile = await cw.requestProfile(USER_ID, USER_TOKEN)
     console.log(profile);
 
-    const stock = await cw.requestStock(USER_ID);
+    const stock = await cw.requestStock(USER_ID), USER_TOKEN;
     console.log(profile);
 
     // as a promise without await
 
-    cw.wantToBuy(USER_ID, { itemCode: '07', quantity: 12, price: 1 })
+    cw.wantToBuy(USER_ID, { itemCode: '07', quantity: 12, price: 1 }, USER_TOKEN)
       .then(deal => console.log(deal))
-      .catch(errorText => cosole.error(errorText));
-  
+      .catch(errorText => console.error(errorText));
+
   } catch (e) {
     console.error(e);
   }
-    
+
 });
 ```
 
 ### ChatWars REST API HTTP server
-
-> ⚠️ This API doesn't authorize client requests so isn't intended to be publicly accessible.
-The server may be hosted only privately to serve as a backend responding internally to another authorized api.
-
-At the moment the API has no persistence and serves for one user only.
-Next release to be configurable to support Redis as persistent storage.
 
 ## Install
 
@@ -70,14 +65,14 @@ cd CWClient
 ## Setup
 
 Since you've got managed to request and obtain valid CW API credentials you must have `username` and `password`.
-It is required to set them into the environment variables named respectively as `APP_NAME` and `ACCESS_TOKEN`.
+It is required to set them into the environment variables named respectively as `CW_APP_NAME` and `CW_APP_PASSWORD`.
 
 ```Shell
-export APP_NAME=username
-export ACCESS_TOKEN=password
+export CW_APP_NAME=username
+export CW_APP_PASSWORD=password
 ```
 
-By default, http server starts on port 8888 and connects to CW3 api instance. 
+By default, http server starts on port 8888 and connects to CW3 api instance.
 This is configurable with environment variables for which default values are provided in the bundled [nodemon.json](nodemon.json) file.
 
 
@@ -118,14 +113,38 @@ If everything's fine you would get a response like that:
 }
 ```
 
-Finally you are to set both the `userId` and the received `token` to environment variables:
+You should remember the user token and use it for accessing user data methods:
 
 ```shell
 export USER_TOKEN=0c32d64ac6f348cfae7e441f317fd898
-export USER_ID=101010101
 ```
 
-Now stop and restart API server and you should be able to use all the rest of the API methods
+Now you should be able to use all the rest of the API methods passing the received token as a http header.
+
+```
+http POST /api/profile/101010101 authorization:$USER_TOKEN
+```
+
+```json
+{
+    "profile": {
+        "atk": 90,
+        "castle": "🐢",
+        "class": "⚗️",
+        "def": 95,
+        "exp": 35982,
+        "gold": 16,
+        "guild": "13-й Галеон",
+        "guild_tag": "13G",
+        "lvl": 28,
+        "mana": 531,
+        "pouches": 79,
+        "stamina": 20,
+        "userName": "Кузоман"
+    },
+    "userId": userId
+}
+```
 
 ## REST API Methods
 
@@ -135,7 +154,7 @@ Now stop and restart API server and you should be able to use all the rest of th
 {
     "userId": userId
 }
-```  
+```
 
 ### POST /api/token/:userId/:authCode
 
@@ -145,9 +164,11 @@ Now stop and restart API server and you should be able to use all the rest of th
     "token": "0c32d64ac6f348cfae7e441f317fd898",
     "userId": userId
 }
-``` 
+```
 
 ### GET /api/profile/:userId
+
+Send authorization token in Authorization: http header
 
 ```json
 {
@@ -171,6 +192,8 @@ Now stop and restart API server and you should be able to use all the rest of th
 ```
 
 ### GET /api/stock/:userId
+
+Send authorization token in Authorization: http header
 
 ```json
 {
@@ -215,9 +238,11 @@ Now stop and restart API server and you should be able to use all the rest of th
 
 ### POST /api/buy/:itemCode?:userId&:quantity&:price
 
+Send authorization token in Authorization: http header
+
 Method does `exactMatch:true` requests
 
-> ⚠️ If you regullary do a noticeable amount of over-the-marked priced buys they would revoke CW API credentials from you
+> ⚠️ If you regularly do a noticeable amount of over-the-marked priced buys they would revoke CW API credentials from you
 
 Sample result assuming quantity is 1 and itemCode is 07
 
