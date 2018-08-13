@@ -37,7 +37,7 @@ manager.on('connect', async () => {
     console.log(profile);
 
     const stock = await cw.requestStock(USER_ID), USER_TOKEN;
-    console.log(profile);
+    console.log(stock);
 
     // as a promise without await
 
