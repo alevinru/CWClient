@@ -6,7 +6,7 @@ This project provides promise-based ChatWars interface as NPM library.
 
 A sample of the NodeJs library usage is demonstrated in [alevinru/CWClientHelperAppBot](https://github.com/alevinru/CWClientHelperAppBot#cwclienthelperappbot) Telegram bot project.
 
-If you don't interested in utilising REST API, then you could go straight to the sample project, and do not setup the REST Api server described below. Nethertheless, in order to serve bot you will have to provide some env variables declared by this project.
+If you are not interested in utilising REST API, then you could go straight to the sample bot project, and do not setup the REST server described below. However, in order to serve the bot you'll have to provide some env variables declared below in the setup section.
 
 #### Shell
 ```shell
