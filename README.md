@@ -142,7 +142,7 @@ http POST /api/profile/101010101 authorization:$USER_TOKEN
         "stamina": 20,
         "userName": "Кузоман"
     },
-    "userId": userId
+    "userId": 101010101
 }
 ```
 
