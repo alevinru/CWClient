@@ -1,4 +1,4 @@
-# ChatWars NodeJS lib and REST API
+# ChatWars API NodeJS wrapper and REST API HTTP server
 
 ### NodeJS interface
 
