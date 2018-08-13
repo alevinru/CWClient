@@ -21,7 +21,7 @@ npm i --save cw-rest-api
 import CWExchange from 'cw-rest-api';
 
 // Assuming you've already done user authorization and got token
-const USER_ID = process.env.USER_ID;
+const USER_ID = parseInt(process.env.USER_ID, 0);
 const USER_TOKEN = process.env.USER_TOKEN;
 
 const cw = new CWExchange(); // optional params { appName, timeOut }
