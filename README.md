@@ -20,7 +20,7 @@ npm i --save cw-rest-api
 ```node
 import CWExchange from 'cw-rest-api';
 
-// CWExchange in single-user mode
+// Assuming you've already done user authorization and got token
 const USER_ID = process.env.USER_ID;
 const USER_TOKEN = process.env.USER_TOKEN;
 
