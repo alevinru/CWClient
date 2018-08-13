@@ -2,7 +2,6 @@ import { connect as amqpConnect } from 'amqp-connection-manager';
 import v4 from 'uuid/v4';
 
 import MessageCache, * as Msg from './MessageCache';
-import database from '../db';
 import itemsByName from '../db/itemsByName';
 
 const {
@@ -299,7 +298,7 @@ async function onCheckExchange(ch) {
       case Msg.ACTION_REQUEST_STOCK:
       case Msg.ACTION_PROFILE: {
 
-        await processProfileResponse(responseCode, result, payload);
+        processProfileResponse(responseCode, result, payload);
         break;
 
       }
@@ -403,7 +402,7 @@ async function onCheckExchange(ch) {
 
   }
 
-  async function processProfileResponse(action, result, payload) {
+  function processProfileResponse(action, result, payload) {
 
     const { userId } = payload;
     const cached = cache.pop(action, userId);
@@ -411,13 +410,6 @@ async function onCheckExchange(ch) {
     debug('processProfileResponse', action, result);
 
     if (result === CW_RESPONSE_OK) {
-      if (action === Msg.ACTION_GRANT_TOKEN) {
-        try {
-          await database.setToken(userId, payload);
-        } catch (err) {
-          rejectCached(cached, payload);
-        }
-      }
       resolveCached(cached, payload);
     } else {
       rejectCached(cached, payload);
