@@ -1,4 +1,4 @@
-# CWClient
+# ChatWars NodeJS lib and REST API
 
 ### NodeJS interface
 
