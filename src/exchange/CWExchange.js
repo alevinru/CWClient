@@ -5,7 +5,7 @@ import MessageCache, * as Msg from './MessageCache';
 import itemsByName from '../db/itemsByName';
 
 const {
-  APP_NAME, ACCESS_TOKEN, API_URL, AMQP_PROTOCOL,
+  CW_APP_NAME, CW_APP_PASSWORD, API_URL, AMQP_PROTOCOL,
 } = process.env;
 
 const debug = require('debug')('laa:cwc:exchange');
@@ -44,7 +44,7 @@ export default class CWExchange {
     const { appName, timeOut } = config;
 
 
-    this.appName = appName || APP_NAME;
+    this.appName = appName || CW_APP_NAME;
     this.timeOut = timeOut || CW_TIMEOUT;
 
     this.cache = new MessageCache();
@@ -57,7 +57,7 @@ export default class CWExchange {
 
     const {
       apiUrl = API_URL,
-      accessToken = ACCESS_TOKEN,
+      accessToken = CW_APP_PASSWORD,
       amqpProtocol = AMQP_PROTOCOL || 'amqps',
     } = connectionParams;
 
