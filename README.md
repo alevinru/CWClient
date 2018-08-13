@@ -2,7 +2,7 @@
 
 ### NodeJS interface
 
-This project provides promise-based ChatWars interface as an NPM library.
+This project provides promise-based ChatWars interface as NPM library.
 
 A sample of the NodeJs library usage is demonstrated in [alevinru/CWClientHelperAppBot](https://github.com/alevinru/CWClientHelperAppBot#cwclienthelperappbot) Telegram bot project.
 
