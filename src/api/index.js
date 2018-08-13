@@ -40,12 +40,12 @@ router.post('/token/:userId/:authCode', async ctx => {
 
 router.get('/profile/:userId', async ctx => {
 
-  const { userId } = ctx.params;
+  const { params: { userId }, header: { authorization } } = ctx;
 
   debug('GET /profile', userId);
 
   try {
-    ctx.body = await exchange.requestProfile(parseInt(userId, 0));
+    ctx.body = await exchange.requestProfile(parseInt(userId, 0), authorization);
   } catch (err) {
     handleException(ctx, err);
   }
@@ -54,12 +54,12 @@ router.get('/profile/:userId', async ctx => {
 
 router.get('/stock/:userId', async ctx => {
 
-  const { userId } = ctx.params;
+  const { params: { userId }, header: { authorization } } = ctx;
 
   debug('GET /stock', userId);
 
   try {
-    ctx.body = await exchange.requestStock(parseInt(userId, 0));
+    ctx.body = await exchange.requestStock(parseInt(userId, 0), authorization);
   } catch (err) {
     handleException(ctx, err);
   }
@@ -68,12 +68,17 @@ router.get('/stock/:userId', async ctx => {
 
 router.post('/buy/:itemCode', async ctx => {
 
-  const { params: { itemCode }, query: { userId, quantity, price } } = ctx;
+  const {
+    params: { itemCode },
+    header: { authorization },
+    query: { userId, quantity, price },
+  } = ctx;
 
   debug('POST /buy', userId, `${itemCode}_${quantity}_${price}`);
 
   try {
-    ctx.body = await exchange.wantToBy(parseInt(userId, 0), { itemCode, quantity, price });
+    const params = { itemCode, quantity, price };
+    ctx.body = await exchange.wantToBy(parseInt(userId, 0), params, authorization);
   } catch (err) {
     handleException(ctx, err);
   }
@@ -120,6 +125,7 @@ function handleException(ctx, err) {
       break;
     }
 
+    case CWErrors.NOT_AUTHORIZED:
     case CWErrors.CW_RESPONSE_INVALID_TOKEN:
     case CWErrors.CW_RESPONSE_INVALID_CODE: {
       response.status = 401;

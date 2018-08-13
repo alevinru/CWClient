@@ -1,6 +1,5 @@
 import { connect as amqpConnect } from 'amqp-connection-manager';
 import v4 from 'uuid/v4';
-import isString from 'lodash/isString';
 
 import MessageCache, * as Msg from './MessageCache';
 import database from '../db';
@@ -35,6 +34,7 @@ export const CW_RESPONSE_NO_OFFERS = 'NoOffersFoundByPrice';
 export const CW_RESPONSE_INVALID_CODE = 'InvalidCode';
 export const CW_RESPONSE_INVALID_TOKEN = 'InvalidToken';
 
+export const NOT_AUTHORIZED = 'Not authorized';
 export const NOT_FOUND = 'Not found';
 export const TIMED_OUT = 'Time out request to CW';
 
@@ -106,13 +106,8 @@ export default class CWExchange {
 
   sendMessage(message, domainKey) {
 
-    const { action, userId } = message;
+    const { action } = message;
     const messageId = v4();
-
-    if (isString(userId)) {
-      // eslint-disable-next-line
-      message.userId = parseInt(userId, 0);
-    }
 
     debug('sendMessage', action, messageId);
 
@@ -175,22 +170,20 @@ export default class CWExchange {
     return this.sendMessage({ action: Msg.ACTION_GET_INFO });
   }
 
-  async wantToBy(userId, params) {
+  async wantToBy(userId, params, token) {
 
     const {
       itemCode, quantity, price, exactPrice = true,
     } = params;
 
-    const tokenData = await database.tokenByUserId(userId);
-
-    if (!tokenData) {
-      return Promise.reject(NOT_FOUND);
+    if (!token) {
+      return Promise.reject(NOT_AUTHORIZED);
     }
 
     const message = {
-      userId,
       action: Msg.ACTION_WTB,
-      token: tokenData.token,
+      userId,
+      token,
       payload: {
         itemCode, quantity: parseInt(quantity, 0), price: parseInt(price, 0), exactPrice,
       },
@@ -202,34 +195,30 @@ export default class CWExchange {
 
   }
 
-  async requestStock(userId) {
+  async requestStock(userId, token) {
 
-    const tokenData = await database.tokenByUserId(userId);
-
-    if (!tokenData) {
-      return Promise.reject(NOT_FOUND);
+    if (!token) {
+      return Promise.reject(NOT_AUTHORIZED);
     }
 
     const message = {
       action: Msg.ACTION_REQUEST_STOCK,
-      token: tokenData.token,
+      token,
     };
 
     return this.sendMessage(message, userId);
 
   }
 
-  async requestProfile(userId) {
+  async requestProfile(userId, token) {
 
-    const tokenData = await database.tokenByUserId(userId);
-
-    if (!tokenData) {
-      return Promise.reject(NOT_FOUND);
+    if (!token) {
+      return Promise.reject(NOT_AUTHORIZED);
     }
 
     const message = {
       action: Msg.ACTION_PROFILE,
-      token: tokenData.token,
+      token,
     };
 
     return this.sendMessage(message, userId);
