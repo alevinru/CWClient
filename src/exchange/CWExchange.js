@@ -114,7 +114,7 @@ export default class CWExchange {
 
       const onTimeout = () => {
         debug('sendMessage onTimeout', messageId);
-        this.cache.popById(action, messageId);
+        this.cache.popByMessageId(action, messageId);
         reject(TIMED_OUT);
       };
 
@@ -126,6 +126,7 @@ export default class CWExchange {
       try {
         this.publish(message, messageId);
       } catch (err) {
+        onTimeout();
         reject(err);
       }
 

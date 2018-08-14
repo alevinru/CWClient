@@ -26,10 +26,13 @@ export default class MessageCache {
 
   }
 
-  popById(type, messageId) {
+  popByMessageId(type, messageId) {
 
     const typeMessages = this.types[type];
-    delete typeMessages[messageId];
+    each(typeMessages, messagesById => {
+      // eslint-disable-next-line
+      delete messagesById[messageId];
+    });
 
   }
 
@@ -39,10 +42,13 @@ export default class MessageCache {
     const typeMessages = this.types[type];
     const { messageId } = message;
 
-    typeMessages[stringKey] = typeMessages[stringKey] || {};
+    if (!typeMessages[stringKey]) {
+      typeMessages[stringKey] = {};
+    }
+
     typeMessages[stringKey][messageId] = message;
 
-    debug('push:', type, key);
+    debug('push:', type, key, messageId);
 
     return messageId;
 
