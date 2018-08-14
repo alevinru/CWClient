@@ -119,13 +119,17 @@ export default class CWExchange {
       };
 
       const timeOut = setTimeout(onTimeout, this.timeOut);
-      const options = Object.assign({ resolve, reject, timeOut }, message);
+      const options = {
+        resolve, reject, timeOut, messageId,
+      };
+      Object.assign(options, message);
 
       this.cache.push(action, domainKey, options);
 
       try {
         this.publish(message, messageId);
       } catch (err) {
+        clearTimeout(timeOut);
         onTimeout();
         reject(err);
       }
