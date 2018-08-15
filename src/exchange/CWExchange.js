@@ -14,10 +14,11 @@ const EX = 'ex';
 const QUEUE_I = 'i';
 const QUEUE_O = 'o';
 
-// const QUEUE_DEALS = 'deals';
-// const QUEUE_OFFERS = 'offers';
-// const QUEUE_SEX = 'sex_digest';
-// const QUEUE_AU = 'au_digest';
+export const QUEUE_DEALS = 'deals';
+export const QUEUE_OFFERS = 'offers';
+export const QUEUE_SEX = 'sex_digest';
+export const QUEUE_AU = 'au_digest';
+export const QUEUE_YELLOW_PAGES = 'yellow_pages';
 
 const CW_TIMEOUT = parseInt(process.env.CW_TIMEOUT, 0) || 5000;
 
@@ -41,11 +42,11 @@ export default class CWExchange {
 
   constructor(config = {}) {
 
-    const { appName, timeOut } = config;
-
+    const { appName, timeOut, fanouts = [] } = config;
 
     this.appName = appName || CW_APP_NAME;
     this.timeOut = timeOut || CW_TIMEOUT;
+    this.fanouts = fanouts;
 
     this.cache = new MessageCache();
 
@@ -260,17 +261,12 @@ async function onCheckExchange(ch) {
 
   onConsumeInit(this.queueName(QUEUE_I));
 
-  // await ch.consume(QUEUE_DEALS, onConsumeLog)
-  //   .then(onConsumeInit(QUEUE_DEALS));
-  //
-  // await ch.consume(QUEUE_AU, onConsumeLog)
-  //   .then(onConsumeInit(QUEUE_AU));
-  //
-  // await ch.consume(QUEUE_SEX, onConsumeLog)
-  //   .then(onConsumeInit(QUEUE_SEX));
-  //
-  // await ch.consume(QUEUE_OFFERS, onConsumeLog)
-  //   .then(onConsumeInit(QUEUE_OFFERS));
+  const fanoutsInit = this.fanouts.map(async name => {
+    await ch.consume(this.queueName(name), onConsumeLog)
+      .then(onConsumeInit(name));
+  });
+
+  await Promise.all(fanoutsInit);
 
   return ch;
 
@@ -469,8 +465,8 @@ async function onCheckExchange(ch) {
   function onConsumeLog(msg) {
     const { fields, properties, content } = msg;
     const { exchange, deliveryTag } = fields;
-    debug('Consume', exchange, `#${deliveryTag}`, properties.timestamp, `${content.length} bytes`);
-    debug('Consumed', exchange || 'private', content.toString());
+    const ts = new Date(properties.timestamp * 1000);
+    debug('Consumed', exchange, deliveryTag, ts, content.toString());
     // debug('Consumed fields', fields);
     // debug('Consumed properties', properties);
     ch.ack(msg);
