@@ -71,24 +71,27 @@ export default class CWExchange {
       debug('Manager disconnected', params.err.stack);
     });
 
-    manager.createChannel({
+    this.onceConnected = new Promise(resolve => {
 
-      json: true,
+      manager
+        .createChannel({
+          json: true,
+        })
+        .addSetup(channel => {
 
-      setup: channel => {
+          debug('Got a channel wrapper');
 
-        debug('Got a channel');
+          this.channel = channel;
 
-        this.channel = channel;
+          return channel.checkExchange(this.queueName(EX), '', { durable: true })
+            .then(() => onCheckExchange.call(this, channel))
+            .then(resolve);
 
-        return channel.checkExchange(this.queueName(EX), '', { durable: true })
-          .then(() => onCheckExchange.call(this, channel));
-
-      },
+        });
 
     });
 
-    return manager;
+    return this.onceConnected;
 
   }
 
