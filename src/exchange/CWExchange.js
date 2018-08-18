@@ -1,5 +1,7 @@
 import { connect as amqpConnect } from 'amqp-connection-manager';
 import v4 from 'uuid/v4';
+import isFunction from 'lodash/isFunction';
+import map from 'lodash/map';
 
 import MessageCache, * as Msg from './MessageCache';
 import itemsByName from '../db/itemsByName';
@@ -96,9 +98,22 @@ export default class CWExchange {
 
   }
 
+  /**
+   * Returns CW queue name for the API key
+   * @param code
+   * @returns {string}
+   */
+
   queueName(code) {
     return `${this.appName}_${code}`;
   }
+
+  /**
+   * Push a message to the outbound queue
+   * @param msg
+   * @param messageId
+   * @returns {Promise<any>}
+   */
 
   publish(msg, messageId = v4()) {
     const options = { messageId };
@@ -107,6 +122,13 @@ export default class CWExchange {
     return this.channel.publish(ex, queue, Buffer.from(JSON.stringify(msg)), options);
   }
 
+  /**
+   * Wraps a message into a keyed cache entry
+   * @param message
+   * @param domainKey
+   * @returns {Promise<any>}
+   */
+
   sendMessage(message, domainKey) {
 
     const { action } = message;
@@ -114,7 +136,7 @@ export default class CWExchange {
 
     debug('sendMessage', action, messageId);
 
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
 
       const onTimeout = () => {
         debug('sendMessage onTimeout', messageId);
@@ -131,7 +153,7 @@ export default class CWExchange {
       this.cache.push(action, domainKey, options);
 
       try {
-        this.publish(message, messageId);
+        await this.publish(message, messageId);
       } catch (err) {
         clearTimeout(timeOut);
         onTimeout();
@@ -261,9 +283,11 @@ async function onCheckExchange(ch) {
 
   onConsumeInit(this.queueName(QUEUE_I));
 
-  const fanoutsInit = this.fanouts.map(async name => {
-    await ch.consume(this.queueName(name), onConsumeLog)
-      .then(onConsumeInit(name));
+  const fanoutsInit = map(this.fanouts, async (fn, name) => {
+    const queueName = this.queueName(isFunction(fn) ? name : fn);
+    const listener = isFunction(fn) ? (msg => fn(msg, () => ch.ack(msg))) : onConsumeLog;
+    await ch.consume(queueName, listener);
+    onConsumeInit(name);
   });
 
   await Promise.all(fanoutsInit);
