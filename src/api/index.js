@@ -78,7 +78,7 @@ router.post('/buy/:itemCode', async ctx => {
 
   try {
     const params = { itemCode, quantity, price };
-    ctx.body = await exchange.wantToBy(parseInt(userId, 0), params, authorization);
+    ctx.body = await exchange.wantToBuy(parseInt(userId, 0), params, authorization);
   } catch (err) {
     handleException(ctx, err);
   }

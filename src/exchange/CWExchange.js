@@ -200,7 +200,7 @@ export default class CWExchange {
     return this.sendMessage({ action: Msg.ACTION_GET_INFO });
   }
 
-  async wantToBy(userId, params, token) {
+  async wantToBuy(userId, params, token) {
 
     const {
       itemCode, quantity, price, exactPrice = true,
