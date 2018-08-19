@@ -257,6 +257,9 @@ export default class CWExchange {
 
 }
 
+export function allItemsByName() {
+  return itemsByName;
+}
 
 /*
 Private
