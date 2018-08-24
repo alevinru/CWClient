@@ -49,6 +49,8 @@ export default class CWExchange {
     this.appName = appName || CW_APP_NAME;
     this.timeOut = timeOut || CW_TIMEOUT;
     this.fanouts = fanouts;
+    const { bindIO = true } = config;
+    this.bindIO = bindIO;
 
     this.cache = new MessageCache();
 
@@ -268,21 +270,25 @@ Private
 
 async function onCheckExchange(ch) {
 
-  const { cache } = this;
+  const { cache, bindIO } = this;
 
   debug('CheckExchange success');
 
-  await ch.bindQueue(this.queueName(QUEUE_O), this.queueName(EX));
+  if (bindIO) {
 
-  debug('Bind success', this.queueName(QUEUE_O));
+    await ch.bindQueue(this.queueName(QUEUE_O), this.queueName(EX));
 
-  await ch.consume(this.queueName(QUEUE_I), async message => {
-    try {
-      await onConsumeResolve(message);
-    } catch (err) {
-      debug(`Error consuming ${this.queueName(QUEUE_I)}`, err.toString());
-    }
-  });
+    debug('Bind success', this.queueName(QUEUE_O));
+
+    await ch.consume(this.queueName(QUEUE_I), async message => {
+      try {
+        await onConsumeResolve(message);
+      } catch (err) {
+        debug(`Error consuming ${this.queueName(QUEUE_I)}`, err.toString());
+      }
+    });
+
+  }
 
   onConsumeInit(this.queueName(QUEUE_I));
 
