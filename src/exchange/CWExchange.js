@@ -49,8 +49,7 @@ export default class CWExchange {
     this.appName = appName || CW_APP_NAME;
     this.timeOut = timeOut || CW_TIMEOUT;
     this.fanouts = fanouts;
-    const { bindIO = true } = config;
-    this.bindIO = bindIO;
+    this.bindIO = config.bindIO;
 
     this.cache = new MessageCache();
 
