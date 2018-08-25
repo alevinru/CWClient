@@ -50,6 +50,7 @@ export default class CWExchange {
     this.timeOut = timeOut || CW_TIMEOUT;
     this.fanouts = fanouts;
     this.bindIO = config.bindIO;
+    this.nextMessageId = 0;
 
     this.cache = new MessageCache();
 
@@ -99,6 +100,11 @@ export default class CWExchange {
 
   }
 
+  newId() {
+    this.nextMessageId += 1;
+    return this.nextMessageId;
+  }
+
   /**
    * Returns CW queue name for the API key
    * @param code
@@ -124,7 +130,7 @@ export default class CWExchange {
   }
 
   /**
-   * Wraps a message into a keyed cache entry
+   * Wraps a message into a keyed cache entry to synchronize request and response
    * @param message
    * @param domainKey
    * @returns {Promise<any>}
@@ -133,7 +139,7 @@ export default class CWExchange {
   sendMessage(message, domainKey) {
 
     const { action } = message;
-    const messageId = v4();
+    const messageId = this.newId();
 
     debug('sendMessage', action, messageId);
 
