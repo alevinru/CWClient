@@ -102,7 +102,7 @@ export default class CWExchange {
 
   newId() {
     this.nextMessageId += 1;
-    return this.nextMessageId;
+    return this.nextMessageId.toString();
   }
 
   /**
@@ -122,11 +122,10 @@ export default class CWExchange {
    * @returns {Promise<any>}
    */
 
-  publish(msg, messageId = v4()) {
-    const options = { messageId };
+  publish(msg) {
     const ex = this.queueName(EX);
     const queue = this.queueName(QUEUE_O);
-    return this.channel.publish(ex, queue, Buffer.from(JSON.stringify(msg)), options);
+    return this.channel.publish(ex, queue, Buffer.from(JSON.stringify(msg)));
   }
 
   /**
@@ -160,7 +159,7 @@ export default class CWExchange {
       this.cache.push(action, domainKey, options);
 
       try {
-        await this.publish(message, messageId);
+        await this.publish(message);
       } catch (err) {
         clearTimeout(timeOut);
         onTimeout();
