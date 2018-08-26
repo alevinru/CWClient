@@ -46,6 +46,7 @@ export default class CWExchange {
 
     const { appName, timeOut, fanouts = [] } = config;
 
+    this.noAck = config.noAck;
     this.appName = appName || CW_APP_NAME;
     this.timeOut = timeOut || CW_TIMEOUT;
     this.fanouts = fanouts;
@@ -308,10 +309,14 @@ async function onCheckExchange(ch) {
   onConsumeInit(this.queueName(QUEUE_I));
 
   const fanoutsInit = map(this.fanouts, async (fn, name) => {
+
     const queueName = this.queueName(isFunction(fn) ? name : fn);
-    const listener = isFunction(fn) ? (msg => fn(msg, () => ch.ack(msg))) : onConsumeLog;
-    await ch.consume(queueName, listener);
+    const fnAck = this.noAck ? fn : msg => fn(msg, () => ch.ack(msg));
+    const listener = isFunction(fn) ? fnAck : onConsumeLog;
+
+    await ch.consume(queueName, listener, { noAck: !!this.noAck });
     onConsumeInit(name);
+
   });
 
   await Promise.all(fanoutsInit);
