@@ -8,7 +8,7 @@
     "lint": "eslint src",
     "babel-node": "babel-node",
     "start": "nodemon --exec 'npm run lint && babel-node' -- src/index.js",
-    "build": "babel src -d lib"
+    "build": "npm run lint && babel src -d lib"
   },
   "author": "Alexander Levin",
   "license": "ISC",

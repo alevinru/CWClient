@@ -1,5 +1,5 @@
 import { connect as amqpConnect } from 'amqp-connection-manager';
-import v4 from 'uuid/v4';
+// import v4 from 'uuid/v4';
 import isFunction from 'lodash/isFunction';
 import map from 'lodash/map';
 
@@ -51,6 +51,8 @@ export default class CWExchange {
     this.fanouts = fanouts;
     this.bindIO = config.bindIO;
     this.nextMessageId = 0;
+    this.ex = this.queueName(EX);
+    this.queueO = this.queueName(QUEUE_O);
 
     this.cache = new MessageCache();
 
@@ -123,9 +125,7 @@ export default class CWExchange {
    */
 
   publish(msg) {
-    const ex = this.queueName(EX);
-    const queue = this.queueName(QUEUE_O);
-    return this.channel.publish(ex, queue, Buffer.from(JSON.stringify(msg)));
+    return this.channel.publish(this.ex, this.queueO, Buffer.from(JSON.stringify(msg)));
   }
 
   /**
@@ -221,13 +221,24 @@ export default class CWExchange {
       userId,
       token,
       payload: {
-        itemCode, quantity: parseInt(quantity, 0), price: parseInt(price, 0), exactPrice,
+        itemCode, quantity, price, exactPrice,
       },
     };
 
     const dealKey = `${userId}_${itemCode}_${quantity}`;
 
     return this.sendMessage(message, dealKey);
+
+  }
+
+  wtbFast(userId, params, token) {
+
+    return this.publish({
+      action: Msg.ACTION_WTB,
+      userId,
+      token,
+      payload: params,
+    });
 
   }
 
