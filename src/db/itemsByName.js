@@ -56,7 +56,7 @@ export default {
   'Assassin Vine': '63',
   'Kloliarway': '64',
   'Astrulic': '65',
-  'Flammia Nut': '66'
+  'Flammia Nut': '66',
   'Plexisop': '67',
   'Mammoth Dill': '68',
   'Silver dust': '69',
