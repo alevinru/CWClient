@@ -55,7 +55,11 @@ export default {
   'Itacory': '62',
   'Assassin Vine': '63',
   'Kloliarway': '64',
-  'Flammia Nut': '66',
+  'Astrulic': '65',
+  'Flammia Nut': '66'
+  'Plexisop': '67',
+  'Mammoth Dill': '68',
+  'Silver dust': '69',
   'Zombie Chest': 'ch1',
   'Vial of Rage': 'p01',
   'Potion of Rage': 'p02',
