@@ -1,6 +1,6 @@
 {
   "name": "cw-rest-api",
-  "version": "1.5.5",
+  "version": "1.5.6",
   "description": "ChatWars REST API",
   "main": "lib/exchange/CWExchange.js",
   "repository": "git@github.com:alevinru/CWClient.git",
