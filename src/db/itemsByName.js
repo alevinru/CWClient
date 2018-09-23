@@ -11,6 +11,7 @@ export default {
   'Iron ore': '08',
   'Cloth': '09',
   'Silver ore': '10',
+  'Bauxite': '11',
   'Magic stone': '13',
   'Sapphire': '15',
   'Solvent': '16',
