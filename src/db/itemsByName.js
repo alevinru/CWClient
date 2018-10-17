@@ -62,6 +62,7 @@ export default {
   'Hamsters': '520',
   'Cheese': '521',
   'Zombie Chest': 'ch1',
+  'Ancient Chest': 'ch2',
   'Vial of Rage': 'p01',
   'Potion of Rage': 'p02',
   'Bottle of Rage': 'p03',
