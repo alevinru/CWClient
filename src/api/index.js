@@ -23,6 +23,53 @@ router.post('/auth/:userId', async ctx => {
 
 });
 
+router.post('/authAdditional/:userId/:operation', async ctx => {
+
+  const { params, header: { authorization } } = ctx;
+  const { operation } = params;
+  const userId = parseInt(params.userId, 0);
+
+  debug('authAdditional', operation);
+
+  try {
+    ctx.body = await exchange.authAdditionalOperation(userId, operation, authorization);
+  } catch (err) {
+    exceptionHandler(ctx)(err);
+  }
+
+});
+
+router.post('/grantAdditional/:userId/:authCode/:requestId', async ctx => {
+
+  const { params, header: { authorization } } = ctx;
+  const { authCode, requestId } = params;
+  const userId = parseInt(params.userId, 0);
+
+  debug('token', userId, authCode);
+
+  try {
+    ctx.body = await exchange.grantAdditionalOperation(userId, requestId, authCode, authorization);
+  } catch (e) {
+    handleException(ctx, e);
+  }
+
+});
+
+router.post('/grant/:userId/:authCode', async ctx => {
+
+  const { params } = ctx;
+  const { userId, authCode } = params;
+
+  debug('token', userId, authCode);
+
+  try {
+    ctx.body = await exchange.sendGrantToken(parseInt(userId, 0), authCode);
+  } catch (e) {
+    handleException(ctx, e);
+  }
+
+});
+
 router.post('/token/:userId/:authCode', async ctx => {
 
   const { params } = ctx;
@@ -96,6 +143,21 @@ router.get('/info', async ctx => {
   }
 
 });
+
+router.get('/guildInfo/:userId', async ctx => {
+
+  const { params: { userId }, header: { authorization } } = ctx;
+
+  debug('GET /guildInfo', userId);
+
+  try {
+    ctx.body = await exchange.guildInfo(parseInt(userId, 0), authorization);
+  } catch (err) {
+    handleException(ctx, err);
+  }
+
+});
+
 
 function exceptionHandler(ctx) {
   return err => handleException(ctx, err);

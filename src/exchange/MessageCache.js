@@ -6,10 +6,13 @@ const debug = require('debug')('laa:cwc:MessageCache');
 
 export const ACTION_PROFILE = 'requestProfile';
 export const ACTION_GET_INFO = 'getInfo';
+export const ACTION_GUILD_INFO = 'guildInfo';
 export const ACTION_REQUEST_STOCK = 'requestStock';
 export const ACTION_WTB = 'wantToBuy';
 export const ACTION_AUTH_SEND = 'createAuthCode';
 export const ACTION_GRANT_TOKEN = 'grantToken';
+export const ACTION_AUTH_ADDITIONAL = 'authAdditionalOperation';
+export const ACTION_GRANT_ADDITIONAL = 'grantAdditionalOperation';
 
 export default class MessageCache {
 
@@ -22,6 +25,9 @@ export default class MessageCache {
       [ACTION_WTB]: {},
       [ACTION_AUTH_SEND]: {},
       [ACTION_GRANT_TOKEN]: {},
+      [ACTION_GUILD_INFO]: {},
+      [ACTION_AUTH_ADDITIONAL]: {},
+      [ACTION_GRANT_ADDITIONAL]: {},
     };
 
   }

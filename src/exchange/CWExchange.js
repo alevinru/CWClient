@@ -177,6 +177,18 @@ export default class CWExchange {
 
    */
 
+  authAdditionalOperation(userId, operation, token) {
+    const message = {
+      action: Msg.ACTION_AUTH_ADDITIONAL,
+      token,
+      payload: { operation },
+    };
+
+    debug('authAdditional:', operation, token);
+
+    return this.sendMessage(message, userId);
+  }
+
   sendAuth(userId) {
 
     const message = {
@@ -203,8 +215,37 @@ export default class CWExchange {
 
   }
 
+  grantAdditionalOperation(userId, requestId, authCode, token) {
+
+    const message = {
+      action: Msg.ACTION_GRANT_ADDITIONAL,
+      token,
+      payload: { requestId, authCode },
+    };
+
+    debug('grantAdditionalOperation', message);
+
+    return this.sendMessage(message, userId);
+
+  }
+
   getInfo() {
     return this.sendMessage({ action: Msg.ACTION_GET_INFO });
+  }
+
+  guildInfo(userId, token) {
+
+    if (!token) {
+      return Promise.reject(NOT_AUTHORIZED);
+    }
+
+    const message = {
+      action: Msg.ACTION_GUILD_INFO,
+      token,
+    };
+
+    return this.sendMessage(message, userId);
+
   }
 
   async wantToBuy(userId, params, token) {
@@ -326,10 +367,11 @@ async function onCheckExchange(ch) {
   async function onConsumeResolve(msg) {
 
     const { content } = msg;
-    const { action, result, payload } = JSON.parse(content.toString());
+    const json = JSON.parse(content.toString());
+    const { action, result, payload } = json;
     const { userId } = payload || {};
 
-    debug('onConsumeResolve', action, result, payload);
+    debug('onConsumeResolve', action, result, json);
 
     const exceptions = checkExceptions();
     const responseCode = exceptions || action;
@@ -342,7 +384,7 @@ async function onCheckExchange(ch) {
       }
 
       case Msg.ACTION_GET_INFO: {
-        processGetInfoResponse(result, payload);
+        processGetInfoResponse(responseCode, result, payload);
         break;
       }
 
@@ -351,6 +393,13 @@ async function onCheckExchange(ch) {
         break;
       }
 
+      case Msg.ACTION_AUTH_ADDITIONAL: {
+        processAuthAdditionalResponse(responseCode, json.uuid, payload);
+        break;
+      }
+
+      case Msg.ACTION_GUILD_INFO:
+      case Msg.ACTION_GRANT_ADDITIONAL:
       case Msg.ACTION_GRANT_TOKEN:
       case Msg.ACTION_AUTH_SEND:
       case Msg.ACTION_REQUEST_STOCK:
@@ -437,11 +486,11 @@ async function onCheckExchange(ch) {
     });
   }
 
-  function processGetInfoResponse(result, payload) {
+  function processGetInfoResponse(responseCode, result, payload) {
 
-    const cached = cache.pop(Msg.ACTION_PROFILE);
+    const cached = cache.pop(responseCode);
 
-    debug('processGetInfoResponse', Msg.ACTION_PROFILE, result);
+    debug('processGetInfoResponse', responseCode, result);
 
     if (result === CW_RESPONSE_OK) {
       resolveCached(cached, payload);
@@ -460,6 +509,21 @@ async function onCheckExchange(ch) {
 
     if (result === CW_RESPONSE_INVALID_TOKEN) {
       rejectCached(cached, result);
+    }
+
+  }
+
+  function processAuthAdditionalResponse(action, uuid, payload) {
+
+    const { userId } = payload;
+    const cached = cache.pop(action, userId);
+
+    debug('processProfileResponse', action, userId, uuid);
+
+    if (uuid) {
+      resolveCached(cached, { uuid, userId });
+    } else {
+      rejectCached(cached, payload);
     }
 
   }
