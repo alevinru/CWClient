@@ -248,6 +248,21 @@ export default class CWExchange {
 
   }
 
+  craftBook(userId, token) {
+
+    if (!token) {
+      return Promise.reject(NOT_AUTHORIZED);
+    }
+
+    const message = {
+      action: Msg.ACTION_CRAFT_BOOK,
+      token,
+    };
+
+    return this.sendMessage(message, userId);
+
+  }
+
   async wantToBuy(userId, params, token) {
 
     const {
@@ -398,6 +413,7 @@ async function onCheckExchange(ch) {
         break;
       }
 
+      case Msg.ACTION_CRAFT_BOOK:
       case Msg.ACTION_GUILD_INFO:
       case Msg.ACTION_GRANT_ADDITIONAL:
       case Msg.ACTION_GRANT_TOKEN:
