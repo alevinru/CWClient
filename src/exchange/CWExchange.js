@@ -21,6 +21,7 @@ export const QUEUE_OFFERS = 'offers';
 export const QUEUE_SEX = 'sex_digest';
 export const QUEUE_AU = 'au_digest';
 export const QUEUE_YELLOW_PAGES = 'yellow_pages';
+export const QUEUE_DUELS = 'duels';
 
 const CW_TIMEOUT = parseInt(process.env.CW_TIMEOUT, 0) || 5000;
 
