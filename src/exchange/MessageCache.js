@@ -9,6 +9,7 @@ export const ACTION_GET_INFO = 'getInfo';
 export const ACTION_GUILD_INFO = 'guildInfo';
 export const ACTION_CRAFT_BOOK = 'viewCraftbook';
 export const ACTION_REQUEST_STOCK = 'requestStock';
+export const ACTION_GEAR_INFO = 'requestGearInfo';
 export const ACTION_WTB = 'wantToBuy';
 export const ACTION_AUTH_SEND = 'createAuthCode';
 export const ACTION_GRANT_TOKEN = 'grantToken';
@@ -30,6 +31,7 @@ export default class MessageCache {
       [ACTION_AUTH_ADDITIONAL]: {},
       [ACTION_GRANT_ADDITIONAL]: {},
       [ACTION_CRAFT_BOOK]: {},
+      [ACTION_GEAR_INFO]: {},
     };
 
   }
