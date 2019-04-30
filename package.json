@@ -16,6 +16,7 @@
     "amqp-connection-manager": "^2.1.0",
     "amqplib": "^0.5.2",
     "debug": "^3.1.0",
+    "esm": "^3.2.22",
     "koa": "^2.5.2",
     "koa-body": "^4.0.4",
     "koa-router": "^7.4.0",
