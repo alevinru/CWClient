@@ -164,7 +164,7 @@ export default class CWExchange {
         await this.publish(message);
       } catch (err) {
         clearTimeout(timeOut);
-        onTimeout();
+        this.cache.popByMessageId(action, messageId);
         reject(err);
       }
 
