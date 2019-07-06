@@ -28,6 +28,7 @@ const CW_TIMEOUT = parseInt(process.env.CW_TIMEOUT, 0) || 5000;
 const CW_RESPONSE_OK = 'Ok';
 const CW_RESPONSE_NOT_REGISTERED = 'NotRegistered';
 const CW_RESPONSE_BAD_FORMAT = 'BadFormat';
+const CW_RESPONSE_NOT_IN_GUILD = 'NotInGuild';
 
 export const CW_RESPONSE_NO_FUNDS = 'InsufficientFunds';
 export const CW_RESPONSE_USER_BUSY = 'UserIsBusy';
@@ -458,6 +459,11 @@ async function onCheckExchange(ch) {
     function checkExceptions() {
 
       switch (result) {
+
+        case CW_RESPONSE_NOT_IN_GUILD: {
+          rejectCached(cache.popByPredicate(action, {}), result);
+          break;
+        }
 
         case CW_RESPONSE_INVALID_CODE: {
           rejectCached(cache.pop(action, userId), CW_RESPONSE_INVALID_CODE);
