@@ -37,6 +37,7 @@ export const CW_RESPONSE_WRONG_USER_ID = 'NoSuchUser';
 export const CW_RESPONSE_NO_OFFERS = 'NoOffersFoundByPrice';
 export const CW_RESPONSE_INVALID_CODE = 'InvalidCode';
 export const CW_RESPONSE_INVALID_TOKEN = 'InvalidToken';
+export const CW_RESPONSE_NO_SUCH_OPERATION = 'NoSuchOperation';
 
 export const NOT_AUTHORIZED = 'Not authorized';
 export const NOT_FOUND = 'Not found';
