@@ -461,6 +461,7 @@ async function onCheckExchange(ch) {
 
       switch (result) {
 
+        case CW_RESPONSE_NO_SUCH_OPERATION:
         case CW_RESPONSE_NOT_IN_GUILD: {
           rejectCached(cache.popByPredicate(action, {}), result);
           break;
