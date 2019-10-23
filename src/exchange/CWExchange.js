@@ -39,6 +39,7 @@ export const CW_RESPONSE_INVALID_CODE = 'InvalidCode';
 export const CW_RESPONSE_INVALID_TOKEN = 'InvalidToken';
 export const CW_RESPONSE_NO_SUCH_OPERATION = 'NoSuchOperation';
 export const CW_RESPONSE_FORBIDDEN = 'Forbidden';
+export const CW_RESPONSE_LEVEL_IS_TOO_LOW = 'LevelIsLow';
 
 export const NOT_AUTHORIZED = 'Not authorized';
 export const NOT_FOUND = 'Not found';
@@ -473,6 +474,7 @@ async function onCheckExchange(ch) {
           break;
         }
 
+        case CW_RESPONSE_LEVEL_IS_TOO_LOW:
         case CW_RESPONSE_FORBIDDEN:
         case CW_RESPONSE_USER_BUSY:
         case CW_RESPONSE_BATTLE_IS_NEAR: {
@@ -602,6 +604,7 @@ async function onCheckExchange(ch) {
 
     switch (result) {
 
+      case CW_RESPONSE_LEVEL_IS_TOO_LOW:
       case CW_RESPONSE_NO_FUNDS:
       case CW_RESPONSE_NO_OFFERS: {
         rejectCached(cached, result);
