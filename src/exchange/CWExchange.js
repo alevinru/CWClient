@@ -469,13 +469,17 @@ async function onCheckExchange(ch) {
           break;
         }
 
+        case CW_RESPONSE_FORBIDDEN: {
+          rejectCached(cache.pop(action, userId), payload);
+          break;
+        }
+
         case CW_RESPONSE_INVALID_CODE: {
-          rejectCached(cache.pop(action, userId), CW_RESPONSE_INVALID_CODE);
+          rejectCached(cache.pop(action, userId), result);
           break;
         }
 
         case CW_RESPONSE_LEVEL_IS_TOO_LOW:
-        case CW_RESPONSE_FORBIDDEN:
         case CW_RESPONSE_USER_BUSY:
         case CW_RESPONSE_BATTLE_IS_NEAR: {
           rejectCached(cache.popByPredicate(action, { userId }), result);
